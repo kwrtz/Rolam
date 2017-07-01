@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Hardware">
+      <UniqueIdentifier>{7b3354ca-707d-4515-adf7-9e6d64ee2537}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sabertooth">
+      <UniqueIdentifier>{70825e03-8ff6-4f21-acf0-b7d34cd28cd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RunningMedian">
+      <UniqueIdentifier>{07c27ac5-e2d6-4318-b3c2-be99ca7423cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PID">
+      <UniqueIdentifier>{1e7fd31b-32f3-4a28-acb6-5e780b4f033b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FreeRam">
+      <UniqueIdentifier>{1a4f9797-1c3a-4910-9470-272034afbbac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ErrorHandler">
+      <UniqueIdentifier>{7e14d6cb-59e1-4b41-9e50-5fbdf7a63cb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BufferSerial">
+      <UniqueIdentifier>{d8a8fc80-b1f5-410b-8636-631eb7360914}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{0c2629ed-fbc8-442f-af75-a44273b180f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Motors">
+      <UniqueIdentifier>{4966d3a6-ec83-4001-bebc-97cd2b0e93d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cmd">
+      <UniqueIdentifier>{f5fdea05-7608-4fb7-b25b-4ff58a0f2453}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BehaviourTree">
+      <UniqueIdentifier>{f05bce77-b755-4ba6-893f-b36b1a0fb75c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sensors">
+      <UniqueIdentifier>{bf5afbca-c7dc-40f7-b98d-d57edd31c61e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Behaviour">
+      <UniqueIdentifier>{2b55e0f4-8e1c-477d-884c-546e3a25cf2e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CRotaryEncoder.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferSerial.h">
+      <Filter>BufferSerial</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Sabertooth.h">
+      <Filter>Sabertooth</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitalInOut.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="RunningMedian.h">
+      <Filter>RunningMedian</Filter>
+    </ClInclude>
+    <ClInclude Include="PID_V2.h">
+      <Filter>PID</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h" />
+    <ClInclude Include="tables.h" />
+    <ClInclude Include="FreeRam.h">
+      <Filter>FreeRam</Filter>
+    </ClInclude>
+    <ClInclude Include="errorhandler.h">
+      <Filter>ErrorHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="RingBufferChar.h">
+      <Filter>ErrorHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadController.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="closedloopcontrol.h">
+      <Filter>Motors</Filter>
+    </ClInclude>
+    <ClInclude Include="mowclosedloopcontrol.h">
+      <Filter>Motors</Filter>
+    </ClInclude>
+    <ClInclude Include="positioncontrol.h">
+      <Filter>Motors</Filter>
+    </ClInclude>
+    <ClInclude Include="motor.h">
+      <Filter>Motors</Filter>
+    </ClInclude>
+    <ClInclude Include="cmd.h">
+      <Filter>cmd</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviourTree.h">
+      <Filter>BehaviourTree</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeStack.h">
+      <Filter>BehaviourTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Blackboard.h" />
+    <ClInclude Include="batterySensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="bumperSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="chargeSystem.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="mowmotorSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="perimeter.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="rangeSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="bCharging.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bCheck2.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bConditions.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bCruise.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bDecorators.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="behaviour.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bEscapeObstacle.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bEscapeOOP.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bFreeBumper.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bFreePerimeter.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bGotoAreaX.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bPerimeterTracking.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="bPerOutside.h">
+      <Filter>Behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="printSensordata.h" />
+    <ClInclude Include="ui.h" />
+    <ClInclude Include="i2c.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.Edison.vsarduino.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CRotaryEncoder.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferSerial.cpp">
+      <Filter>BufferSerial</Filter>
+    </ClCompile>
+    <ClCompile Include="hardware.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Sabertooth.cpp">
+      <Filter>Sabertooth</Filter>
+    </ClCompile>
+    <ClCompile Include="RunningMedian.cpp">
+      <Filter>RunningMedian</Filter>
+    </ClCompile>
+    <ClCompile Include="PID_V2.cpp">
+      <Filter>PID</Filter>
+    </ClCompile>
+    <ClCompile Include="global.cpp" />
+    <ClCompile Include="tables.cpp" />
+    <ClCompile Include="FreeRam.cpp">
+      <Filter>FreeRam</Filter>
+    </ClCompile>
+    <ClCompile Include="errorhandler.cpp">
+      <Filter>ErrorHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="RingBufferChar.cpp">
+      <Filter>ErrorHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadController.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="closedloopcontrol.cpp">
+      <Filter>Motors</Filter>
+    </ClCompile>
+    <ClCompile Include="mowclosedloopcontrol.cpp">
+      <Filter>Motors</Filter>
+    </ClCompile>
+    <ClCompile Include="positioncontrol.cpp">
+      <Filter>Motors</Filter>
+    </ClCompile>
+    <ClCompile Include="motor.cpp">
+      <Filter>Motors</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd.cpp">
+      <Filter>cmd</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviourTree.cpp">
+      <Filter>BehaviourTree</Filter>
+    </ClCompile>
+    <ClCompile Include="bumperSensor.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="perimeter.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="behaviour.cpp">
+      <Filter>Behaviour</Filter>
+    </ClCompile>
+    <ClCompile Include="printSensordata.cpp" />
+    <ClCompile Include="ui.cpp" />
+    <ClCompile Include="Blackboard.cpp" />
+    <ClCompile Include="i2c.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Edison.ino" />
+  </ItemGroup>
+</Project>
