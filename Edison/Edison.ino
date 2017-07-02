@@ -19,7 +19,6 @@ Private-use only! (you need to ask for a commercial-use)
 */
 
 #include "i2c.h"
-#include "Streaming.h"
 #include "hardware.h"
 #include "cmd.h"
 #include "perimeter.h"
