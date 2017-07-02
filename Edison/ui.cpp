@@ -88,40 +88,40 @@ void cmd_help(int arg_cnt, char **args)
 {
     unsigned long wait;
 
-	errorHandler.setInfoNoLog(F("\nIGOR4 interface emulator\r\n"));
+	errorHandler.setInfoNoLog(F("\Edison interface emulator\r\n"));
     errorHandler.setInfoNoLog(F("Available debug commands: (lines end with CRLF or '\\r')\r\n"));
     errorHandler.setInfoNoLog(F("H will print this help message again\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
     errorHandler.setInfoNoLog(F("hello print hello message\r\n"));
-    errorHandler.setInfoNoLog(F("args 1 2 3 show args 1 2 3\r\n"));
+    errorHandler.setInfoNoLog(F("args,1,2,3 show args 1 2 3\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
 
 
     errorHandler.setInfoNoLog(F("\r\nTUNE PARAMETER\r\n"));
-    errorHandler.setInfoNoLog(F("set.p 123.34  //sets drive motors proportional term\r\n"));
-    errorHandler.setInfoNoLog(F("set.i 123.34 //sets drive motors integral term\r\n"));
+    errorHandler.setInfoNoLog(F("set.p,123.34  //sets drive motors proportional term\r\n"));
+    errorHandler.setInfoNoLog(F("set.i,123.34 //sets drive motors integral term\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
-    errorHandler.setInfoNoLog(F("set.d 123.34 //sets drive motors derivative term\r\n"));
-    errorHandler.setInfoNoLog(F("set.poskp 123.34 //sets position proportional term\r\n"));
-    errorHandler.setInfoNoLog(F("set.ghpid 0.1 0.2 0.3 //set line follower pid kp ki kd\r\n"));
+    errorHandler.setInfoNoLog(F("set.d,123.34 //sets drive motors derivative term\r\n"));
+    errorHandler.setInfoNoLog(F("set.poskp,123.34 //sets position proportional term\r\n"));
+    errorHandler.setInfoNoLog(F("set.ghpid,0.1 0.2 0.3 //set line follower pid kp ki kd\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
-    errorHandler.setInfoNoLog(F("set.twf 1.49 //set turn winkel faktor to 1.49\r\n"));
-    errorHandler.setInfoNoLog(F("set.relay 1/0 //turn relay on/off\r\n"));
-    errorHandler.setInfoNoLog(F("set.proc 1/0  //turn output for processing on/off\r\n"));
+    errorHandler.setInfoNoLog(F("set.twf,1.49 //set turn winkel faktor to 1.49\r\n"));
+    errorHandler.setInfoNoLog(F("set.relay,1/0 //turn relay on/off\r\n"));
+    errorHandler.setInfoNoLog(F("set.proc,1/0  //turn output for processing on/off\r\n"));
 
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
-    errorHandler.setInfoNoLog(F("set.mowmode 0/1  0=Workx 1=308\r\n"));
-    errorHandler.setInfoNoLog(F("set.spiral 0/1  0=Off 1=On\r\n"));
+    errorHandler.setInfoNoLog(F("set.mowmode,0/1  0=Workx 1=308\r\n"));
+    errorHandler.setInfoNoLog(F("set.spiral,0/1  0=Off 1=On\r\n"));
 
 
     errorHandler.setInfoNoLog(F("\n\r\nMODE SELECTION\r\n"));
@@ -130,7 +130,7 @@ void cmd_help(int arg_cnt, char **args)
 
     errorHandler.setInfoNoLog(F("A //automatic control over actuators - standard\r\n"));
     errorHandler.setInfoNoLog(F("M //manuel control over actuators\r\n"));
-    errorHandler.setInfoNoLog(F("area 12 //drive 12m at perimeter and begin mowing\r\n"));
+    errorHandler.setInfoNoLog(F("area,12 //drive 12m at perimeter and begin mowing\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
@@ -140,21 +140,21 @@ void cmd_help(int arg_cnt, char **args)
 
 
     errorHandler.setInfoNoLog(F("\n\r\nMANUAL MODE COMMANDS\r\n"));
-    errorHandler.setInfoNoLog(F("v 30 //drives motors with speed of 30%\r\n"));
+    errorHandler.setInfoNoLog(F("v,30 //drives motors with speed of 30%\r\n"));
     errorHandler.setInfoNoLog(F("     //Value: -100% to 100%\r\n"));
 
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
     errorHandler.setInfoNoLog(F("s //stop drive motors\r\n"));
-    errorHandler.setInfoNoLog(F("drivew 60 30 //drives 60 degrees with speed 30\r\n"));
-    errorHandler.setInfoNoLog(F("drivecm 60 30 //drives 60 cm with speed 30\r\n"));
+    errorHandler.setInfoNoLog(F("drivew,60,30 //drives 60 degrees with speed 30\r\n"));
+    errorHandler.setInfoNoLog(F("drivecm,60,30 //drives 60 cm with speed 30\r\n"));
     errorHandler.setInfoNoLog(F("              //negative drives backward\r\n"));
 
     wait = millis();
     while (millis() - wait < 200) executeLoop();
 
-    errorHandler.setInfoNoLog(F("turnto 60 30  //turn 60 degrees right with speed 30\r\n"));
+    errorHandler.setInfoNoLog(F("turnto,60,30  //turn 60 degrees right with speed 30\r\n"));
     errorHandler.setInfoNoLog(F("              //negative turns left\r\n"));
 
     errorHandler.setInfoNoLog(F("sp //stop Positioning\r\n"));
