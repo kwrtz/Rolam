@@ -18,17 +18,12 @@ USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "Sabertooth.h"
 
-Sabertooth::Sabertooth(byte address)
-  : _address(address), _port(SabertoothTXPinSerial)
-{
-  
-}
-
 Sabertooth::Sabertooth(byte address, SabertoothStream& port)
-  : _address(address), _port(port)
+	: _address(address), _port(port)
 {
 
 }
+
 
 void Sabertooth::autobaud(boolean dontWait) const
 {

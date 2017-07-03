@@ -29,8 +29,7 @@ Private-use only! (you need to ask for a commercial-use)
 //#define DRIVEMOTOR_TEST 1   // use this to activate test routines in the bottem of this script
 
 
-// Create Motordriver Object
-static Sabertooth motordriver(129, sabertoothTX.serial);
+
 
 
 void TClosedLoopControlThread::setup(uint8_t motorNumber, CRotaryEncoder  *enc)    // Motor 1 oder 2
@@ -74,7 +73,7 @@ void TClosedLoopControlThread::run()
 	// Wird alle 20ms aufgerufen
 	runned();
 	readEncoder();
-	LoopFSM();
+//	LoopFSM();
 }
 
 /*********************************************************/
@@ -86,7 +85,7 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 
 
 	case STM_RUN:
-		//debug->puts("STM_RUN\r\n");
+		//debug.serial.println("STM_RUN\r\n");
 		rampSetpoint(sollSpeed);
 		myPID.Compute();
 		//debug->printf("Setpoint: %f Output: %f\r\n", Setpoint, Output);
@@ -127,7 +126,7 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 
 
 	case STM_STOP_REQUEST:
-		//debug->puts("STM_STOP_REQUEST\r\n");
+		//debug.serial.println("STM_STOP_REQUEST");
 		rampSetpoint(0);
 		myPID.Compute();
 		//debug->printf("SetpointStopR: %f Output: %f  fabsOutput: %f\r\n", Setpoint, Output, fabs(Output));
@@ -142,7 +141,7 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 		break;
 
 	case STM_STOP_ROLLOUT:
-		//debug->puts("STM_STOP_ROLLOUT\r");
+		//debug.serial.println("STM_STOP_ROLLOUT");
 		motordriver.motor(motorNo, 0);
 		if (fabs(current_speed) < 100) { // Wait until motor stopped. Bei 100ticks/s schon OK damit robbi nicht zu träge ist aber immer noch sanft abbremst
 			SetState(STM_STOP);
@@ -151,7 +150,7 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 		break;
 
 	case STM_STOP:
-		//Serial.println("STM_STOP");
+		//debug.serial.println("STM_STOP");
 		motordriver.motor(motorNo, 0);
 		break;
 
@@ -169,7 +168,7 @@ void TClosedLoopControlThread::BeginState(EMotorState t)
 {
 	switch (t) {
 	case STM_RUN:
-		//Serial.println("STM_FORWARD BeginState");
+		//debug.serial.println("STM_RUN BeginState \r\n");
 		myPID.Initialize();
 		lastTickCounter = myEncoder->getTickCounter();
 		lastAbsTickCounter = myEncoder->getAbsTicksCounter();

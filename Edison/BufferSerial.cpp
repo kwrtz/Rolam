@@ -43,12 +43,12 @@ void BufferSerial::run(void)
 	}
 }
 
-int BufferSerial::unreadable(void)
+bool BufferSerial::unreadable(void)
 {
 	return (_present == _last);
 }
 
-int BufferSerial::readable(void)
+bool BufferSerial::readable(void)
 {
 	return !unreadable();
 }

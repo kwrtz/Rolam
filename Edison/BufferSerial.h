@@ -52,8 +52,8 @@ public:
 	virtual ~BufferSerial();
 	void run(void);
 	char getChar(void);
-	int unreadable(void);
-	int readable(void);
+	bool unreadable(void);
+	bool readable(void);
 	//int printf(char *str, ...);
 };
 

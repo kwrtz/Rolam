@@ -114,7 +114,7 @@ void setup()
 	hardwareSetup();
 	delay(2000); // wait for motordriver and SRF08 ready
 
-				 // Set start configuration
+	 // Set start configuration
 	tables_init();
 
 
@@ -167,19 +167,26 @@ void setup()
 
 
 	// ACHTUNG: In TreadController.h die Anzahl der threads einstellen falls 15 überschritten wird
+
 	controller.add(&clcM);
 	controller.add(&clcL);
 	controller.add(&clcR);
 	controller.add(&pcL);
 	controller.add(&pcR);
+
 	controller.add(&cmd);
+
 	controller.add(&perimeterSensoren);
+	
 	controller.add(&batterieSensor);
 	controller.add(&mowMotorSensor);
 	controller.add(&rangeSensor);
+
 	controller.add(&bumperSensor);
+	
 	controller.add(&chargeSystem);
 	controller.add(&processingSensorData);
+
 
 	//---------------------------------
 	// Behaviour Objects konfigurieren
@@ -187,9 +194,6 @@ void setup()
 
 	myBehaviour.setup();
 
-	//bMow.setup(&motor, &perimeterSensoren, &mowMotorSensor, &errorHandler, &rangeSensor, &bumperSensor);
-	//bFollowLine.setup(&motor, &perimeterSensoren, &errorHandler);
-	//arbitrator.setup(&motor, &perimeterSensoren, &batterieSensor, &mowMotorSensor, &errorHandler, &bMow);
 
 	//---------------------------------
 	// Userinterface setup
@@ -207,6 +211,15 @@ void setup()
 		_controlManuel = false;
 	}
 
+	//Delete Serial Line Data
+	debug.run();
+	perRX.run();
+	while (debug.readable()) {
+		debug.getChar();
+	}
+	while (perRX.readable()) {
+		perRX.getChar();
+	}
 }
 
 void executeLoop() //wird von ui.cpp verwendet wenn Hilfe ausgegeben wird
@@ -219,8 +232,18 @@ void loop()
 	debug.run();
 	perRX.run();
 
-	loopCounter++;
+	//Show that loop is running and not hangs
+	if (lastTimeShowError == 0) {
+		lastTimeShowError = millis();
+	}
+	if (millis() - lastTimeShowError > 2000) {
+		lastTimeShowError = millis();
+		doMyLED = !doMyLED;
+		debug.serial.println(lastTimeShowError);
+	}
 
+	loopCounter++;
+/*
 	if (errorHandler.isErrorActive()) {
 		_controlManuel = true;
 		////arbitrator.SetState(STARB_OFF);
@@ -236,7 +259,7 @@ void loop()
 			errorHandler.printError();
 		}
 	}
-
+*/
 	controller.run();
 
 
@@ -261,6 +284,7 @@ void loop()
 
 		myBehaviour.loop();
 	}
+
 }
 
 

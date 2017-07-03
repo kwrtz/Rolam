@@ -52,9 +52,12 @@ void TbumperSensor::run()
     float sum5=0.0f;
     float sumReading=0.0f;
 
-    runned();
+	runned();
 
     memcpy(&_buf[0],&_buf[1],sizeof(float) * (MPX5010DP_BUF_SIZE-1));
+	//memmove(_buf, _buf+1, 196);
+
+	
 
     //_buf[ MPX5010DP_BUF_SIZE-1 ] = aiBumper.read();
     //y[i] := y[i-1] + a * (x[i] - y[i-1])
@@ -63,13 +66,13 @@ void TbumperSensor::run()
     //debug->printf("%f ",   _buf[ MPX5010DP_BUF_SIZE-1 ] );
 
 
-    /*
-        pc.printf("\r\n#######\r\n");
-        for(i=0; i < MPX5010DP_BUF_SIZE; i++) {
-            pc.printf("%f ", _buf[i]);
-        }
-        pc.printf("\r\n#######\r\n");
-    */
+    
+    //    pc.printf("\r\n#######\r\n");
+    //    for(i=0; i < MPX5010DP_BUF_SIZE; i++) {
+    //        pc.printf("%f ", _buf[i]);
+    //    }
+    //    pc.printf("\r\n#######\r\n");
+    
 
 
     for(i=0; i < 4; i++) {
@@ -149,6 +152,7 @@ void TbumperSensor::run()
             }
         }
 
+
         // calculate deactivate threshold out of least sum
         if(_bumperActivated) {
 
@@ -186,7 +190,10 @@ void TbumperSensor::run()
             }
         }
 
-    } else {
+
+    } 
+	
+	else {
         if(sumReading < _deactivateThreshold) {
             _bumperActivated = false;
             if(flagShowBumper) {
@@ -200,6 +207,7 @@ void TbumperSensor::run()
         }
 
     }
+
 
     //pc.printf("#######\r\n");
 };

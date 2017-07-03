@@ -113,12 +113,13 @@ public:
             motorMowSenseCounter = 0;
             if (millis() >= lastTimeMotorMowStucked + 15000) { // wait 30 seconds before switching on again
                 clcM.motorDisabled = false;
-                //debug->printf( "Mow MotorDisabled\r\n");
             }
         }
 
         if (motorMowSenseCounter >= 30) { //ignore motorMowPower for 3 seconds
-			errorHandler.setInfo(F("!03,Mow MotorDisabled: current high\r\n"));
+			if (clcM.motorDisabled == false) { //Show message only once
+				errorHandler.setInfo(F("!03,Mow MotorDisabled: current high\r\n"));
+			}
             clcM.motorDisabled = true;
             lastTimeMotorMowStucked = millis();
         }

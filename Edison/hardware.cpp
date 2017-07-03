@@ -32,7 +32,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 #define pinCHARGEVOLTAGE A2 
 #define pinCHARGECURRENT A3 
-#define pinCHARGINGENABLE 53 
+#define pinCHARGINGENABLE 54 
 
 
 
@@ -52,12 +52,16 @@ Private-use only! (you need to ask for a commercial-use)
 
 BufferSerial pc(Serial, 256);
 BufferSerial bt(Serial1, 256);
-BufferSerial per(Serial2, 256);
+BufferSerial per(Serial2, 256); //Used serial 2 to Receive. Sabertoothdriver sends on this line.
 BufferSerial &debug = pc;
 //BufferSerial &debug = bt;
 BufferSerial &perRX = per;
-BufferSerial &sabertoothTX = per;
+//BufferSerial &sabertoothTX = per;
 
+
+// Create Motordriver Object. Used serial 2 to Sent in order nothin is received
+ Sabertooth motordriver(129, Serial2);
+ Sabertooth mowMotorDriver(129, Serial2);
 
 //SRF08 rangeMod1(SRF08_SDA_Pin, SRF08_SCL_Pin, 0xE2); //SRF08 ranging module 1 (PinName SDA, PinName SCL, int i2cAddress)
 
@@ -101,9 +105,12 @@ static void ISR_MR_ENC_SIGA() {
 void hardwareSetup() {
 
 	pc.serial.begin(115200);
+	//bt.serial.begin(19200);
 	bt.serial.begin(921600);
 	per.serial.begin(19200);
 
+
+	debug.serial.println("HardwareSetup");
 	encoderL.isReversed();
 
 	attachInterrupt(digitalPinToInterrupt(ENCODERLEFT_A_Pin), ISR_ML_ENC_SIGA, RISING);

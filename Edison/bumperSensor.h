@@ -42,8 +42,9 @@ public:
     bool isBumperActivated();
 private:
     bool _bumperActivated;
-    float _buf[MPX5010DP_BUF_SIZE];
-    float _deactivateThreshold;
+	float _deactivateThreshold;
+	float _buf[MPX5010DP_BUF_SIZE];
+
 };
 
 

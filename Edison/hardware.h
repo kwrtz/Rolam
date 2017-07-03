@@ -30,12 +30,17 @@ Private-use only! (you need to ask for a commercial-use)
 #include "DigitalInOut.h"
 #include "BufferSerial.h"
 #include "CRotaryEncoder.h"
+#include "Sabertooth.h"
 //#include "SRF08.h"
 
 
 extern BufferSerial &debug;
 extern BufferSerial &perRX;
-extern BufferSerial &sabertoothTX;
+//extern BufferSerial &sabertoothTX;
+
+
+extern Sabertooth motordriver;
+extern Sabertooth mowMotorDriver;
 
 //extern SRF08 rangeMod1;
 

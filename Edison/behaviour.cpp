@@ -317,7 +317,7 @@ void TBehaviour::reset()
     bb.flagBumperOutsidePerActivated = false;
     bb.flagCruiseSpiral = false;
     
-    errorHandler.setInfo("reset diable flagCruiseSpiral");
+    errorHandler.setInfo(F("bht->reset diable flagCruiseSpiral\r\n"));
 
     bb.flagCoilFirstOutside = CO_BOTH;
     bb.flagCoilOutsideAfterOverrun  = CO_BOTH;

@@ -27,12 +27,6 @@ typedef Stream SabertoothStream;
 typedef Print SabertoothStream;
 #endif
 
-#if defined(USBCON)
-#define SabertoothTXPinSerial Serial1 // Arduino Leonardo has TX->1 on Serial1, not Serial.
-#else
-#define SabertoothTXPinSerial Serial
-#endif
-#define SyRenTXPinSerial SabertoothTXPinSerial
 
 /*!
 \class Sabertooth
@@ -41,20 +35,13 @@ typedef Print SabertoothStream;
 class Sabertooth
 {
 public:
-  /*!
-  Initializes a new instance of the Sabertooth class.
-  The driver address is set to the value given, and the Arduino TX serial port is used.
-  \param address The driver address.
-  */
-  Sabertooth(byte address);
-  
-  /*!
-  Initializes a new instance of the Sabertooth class.
-  The driver address is set to the value given, and the specified serial port is used.
-  \param address The driver address.
-  \param port    The port to use.
-  */
-  Sabertooth(byte address, SabertoothStream& port);
+	/*!
+	Initializes a new instance of the Sabertooth class.
+	The driver address is set to the value given, and the specified serial port is used.
+	\param address The driver address.
+	\param port    The port to use.
+	*/
+	Sabertooth(byte address, SabertoothStream& port);
 
 public:
   /*!
@@ -172,7 +159,7 @@ private:
   void throttleCommand(byte command, int power) const;
   
 private:
-  const byte        _address;
+	const byte        _address;
   SabertoothStream& _port; 
 };
 

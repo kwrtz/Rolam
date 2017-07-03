@@ -122,8 +122,12 @@ void cmd_help(int arg_cnt, char **args)
 
     errorHandler.setInfoNoLog(F("set.mowmode,0/1  0=Workx 1=308\r\n"));
     errorHandler.setInfoNoLog(F("set.spiral,0/1  0=Off 1=On\r\n"));
+	errorHandler.setInfoNoLog(F("set.f,1,10 set f table value idx=1 value=10\r\n"));
+	wait = millis();
+	while (millis() - wait < 200) executeLoop();
 
-
+	errorHandler.setInfoNoLog(F("set.i,1,10 set i table value idx=1 value=10\r\n"));
+	errorHandler.setInfoNoLog(F("set.b,1,0/1 set b table value idx=1 value = 0 or 1\r\n"));
     errorHandler.setInfoNoLog(F("\n\r\nMODE SELECTION\r\n"));
     wait = millis();
     while (millis() - wait < 200) executeLoop();
@@ -198,7 +202,8 @@ void cmd_help(int arg_cnt, char **args)
     wait = millis();
     while (millis() - wait < 200) executeLoop();
     errorHandler.setInfoNoLog(F("show.workx //shows workx rotate values\r\n"));
-
+	errorHandler.setInfoNoLog(F("show.tables //shows config tables\r\n"));
+	
 
     errorHandler.setInfoNoLog(F("h //hide showing\r\n"));
 
@@ -532,6 +537,64 @@ void cmd_setProcessingConnected(int arg_cnt, char **args)
     }
 }
 
+
+void cmd_showTables(int arg_cnt, char **args)
+{
+
+	errorHandler.setInfoNoLog(F("--- FLOAT TABLE --\r\n"));
+
+	for (int idx = 0; idx < TABLE_F_END; idx++) {
+		errorHandler.setInfoNoLog(F("idx: %i value: %f:\r\n"), idx, GETTF(idx));
+	}
+
+	errorHandler.setInfoNoLog(F("--- INT TABLE --\r\n"));
+	for (int idx = 0; idx < TABLE_I_END; idx++) {
+
+		errorHandler.setInfoNoLog(F("idx: %i value: %d:\r\n"), idx, GETTI(idx));
+	}
+
+	errorHandler.setInfoNoLog(F("--- BOOL TABLE --\r\n"));
+	for (int idx = 0; idx < TABLE_B_END; idx++) {
+
+		errorHandler.setInfoNoLog(F("idx: %i value: %d:\r\n"), idx, GETTB(idx));
+	}
+	
+}
+
+void cmd_setFTable(int arg_cnt, char **args)
+{   
+	int idx = cmdStr2Num(args[1],10);
+	float val = cmdStr2Float(args[2]);
+	if (idx >= 0 && idx < TABLE_F_END) {
+		SETTF(idx, val);
+	}
+}
+
+void cmd_setITable(int arg_cnt, char **args)
+{
+	int idx = cmdStr2Num(args[1], 10);
+	int  val = cmdStr2Num(args[2], 10);
+	if (idx >= 0 && idx < TABLE_I_END) {
+		SETTI(idx, val);
+	}
+}
+
+
+void cmd_setBTable(int arg_cnt, char **args)
+{
+	int idx = cmdStr2Num(args[1], 10);
+	int val = cmdStr2Num(args[2], 10);
+
+	if (idx >= 0 && idx < TABLE_B_END) {
+		if (val == 0) {
+			SETTB(idx, false);
+		}
+		else {
+			SETTB(idx, true);
+		}
+	}
+}
+
 // Print "hello world" when called from the command line.
 //
 // Usage:
@@ -597,7 +660,12 @@ void cmd_setup()
 
     cmdAdd((char *)"set.spiral", cmd_setCruiseSpiral);
 
+	cmdAdd((char *)"set.f", cmd_setFTable);
+	cmdAdd((char *)"set.b", cmd_setBTable);
+	cmdAdd((char *)"set.i", cmd_setITable);
 
+
+	
 
 
 
@@ -637,6 +705,9 @@ void cmd_setup()
     cmdAdd((char *)"show.mem", cmd_showMem);
     cmdAdd((char *)"show.distance", cmd_showGotoAreaDistance);
     cmdAdd((char *)"show.workx", cmd_showWorkx);
+	cmdAdd((char *)"show.tables", cmd_showTables);
+
+	
 
     cmdAdd((char *)"h", cmd_hideShowing);
 

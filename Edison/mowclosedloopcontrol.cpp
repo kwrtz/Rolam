@@ -23,8 +23,7 @@ Private-use only! (you need to ask for a commercial-use)
 #include "errorhandler.h"
 
 
-// Create mowMotorDriver Object
-static Sabertooth mowMotorDriver(128, sabertoothTX.serial);
+
 
 
 void TMowClosedLoopControlThread::setup(uint8_t motorNumber)    // Motor 1 oder 2
