@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Private-use only! (you need to ask for a commercial-use)
 */
 
-#include "i2c.h"
+#include "rtc.h"
+#include "adcman.h"
 #include "hardware.h"
 #include "cmd.h"
 #include "perimeter.h"
@@ -38,25 +39,27 @@ Private-use only! (you need to ask for a commercial-use)
 #include "tables.h"
 #include "ui.h"
 #include "printSensordata.h"
+#include "bt.h"
+#include "EEPROM.h"
 
 
 /*********************************************************************/
 // Global Variables
 /*********************************************************************/
 unsigned long loopCounter = 0;
-bool processingConnectedFlag = false;
+
 
 /* Private function prototypes -----------------------------------------------*/
 void loop();
 
 
-TErrorHandler errorHandler;
-
 /*********************************************************************/
 // Controller Threads die in bestimmten intervallen aufgerufen werden
-// ACHTUNG: In TreadController.h die Anzahl der threads einstellen falls 15 überschritten wird
+// Oder Services die nicht in in de Threadcontroller integriert werden
+// ACHTUNG: In TreadController.h die Anzahl der threads einstellen falls 15 Ã¼berschritten wird
 /*********************************************************************/
-
+// Hardware abstaraction layer run function
+Thread hal;
 // mow motor closed loop control - no closed loop used
 TMowClosedLoopControlThread clcM;
 // drive motor left closed loop control
@@ -69,13 +72,13 @@ TPositionControl pcL;
 TPositionControl pcR;
 // Motorensteuerung Interface. KEIN THREAD. Wird verwendet um clcX und pcX zu steuern.
 TMotorInterface motor;
-// Verarbeitet Ein-/Ausgabe über Serial line console oder bluetooth. in hardware.cpp die debug zuweisung ändern.
+// Verarbeitet Ein-/Ausgabe Ã¼ber Serial line console oder bluetooth. in hardware.cpp die debug zuweisung Ã¤ndern.
 Thread cmd;
 // Daten von Perimetersensoren vom 446RE
 TPerimeterThread perimeterSensoren;
 // Messung der Batteriespannung
 TbatterieSensor batterieSensor;
-// Messung des Mähmotorstroms
+// Messung des MÃ¤hmotorstroms
 TMowMotorSensor mowMotorSensor;
 // SRF08 Range Sensor Messung der Entfernung
 TrangeSensor rangeSensor;
@@ -85,8 +88,13 @@ TbumperSensor bumperSensor;
 TchargeSystem chargeSystem;
 // Print Sensordata for processing
 Thread processingSensorData;
+// Real time clock
+Trtc rtc;
+// EEPROM will not insert in thread controller
+TEEPROM eeprom;
+
 // Instantiate a new ThreadController
-ThreadController controller = ThreadController(); // Thread die vor manuellen mode laufen müssen
+ThreadController controller = ThreadController(); // Thread die vor manuellen mode laufen mÃ¼ssen
 
 
 
@@ -101,7 +109,7 @@ TBehaviour myBehaviour(myBlackboard);
 /*********************************************************************/
 // Module Variables
 /*********************************************************************/
-bool _controlManuel = true;
+
 unsigned long lastTimeShowError = 0;
 
 
@@ -112,7 +120,8 @@ void setup()
 	// Initialize interface to hardware
 	//---------------------------------
 	hardwareSetup();
-	delay(2000); // wait for motordriver and SRF08 ready
+	errorHandler.setInfo(F("HardwareSetup finished\r\n"));
+
 
 	 // Set start configuration
 	tables_init();
@@ -123,13 +132,17 @@ void setup()
 	// Motor-/Positionthreads laufen in 20ms bzw 100ms Takt.
 	// Alle andern in anderen Intervallen.
 	//---------------------------------
+
+	hal.setInterval(0);
+	hal.onRun(hardwareRun);
+
 	clcM.setup(1);  // Mow Motor 1 of sabertooth
 	clcM.setInterval(198);
 
 	clcL.setup(1, &encoderL);  // Motor 1 of sabertooth
-	clcL.setInterval(20);
+	clcL.setInterval(100);
 	clcR.setup(2, &encoderR);  // Motor 2 of sabertooth
-	clcR.setInterval(20);
+	clcR.setInterval(100);
 
 	pcL.setup(&clcL, &encoderL);  // Position control left
 	pcL.setInterval(100);
@@ -164,9 +177,15 @@ void setup()
 	//---------------------------------
 	processingSensorData.onRun(printSensordata);
 	processingSensorData.setInterval(1007);
+	//---------------------------------
+	rtc.setup();
+	rtc.setInterval(10017);
+	//---------------------------------
+	eeprom.setup();
+	eeprom.enabled = false; // not used as thread at the moment
 
-
-	// ACHTUNG: In TreadController.h die Anzahl der threads einstellen falls 15 überschritten wird
+	// ACHTUNG: In TreadController.h die Anzahl der threads einstellen falls 25 Ã¼berschritten wird
+	controller.add(&hal);
 
 	controller.add(&clcM);
 	controller.add(&clcL);
@@ -187,7 +206,8 @@ void setup()
 	controller.add(&chargeSystem);
 	controller.add(&processingSensorData);
 
-
+	controller.add(&rtc);
+	
 	//---------------------------------
 	// Behaviour Objects konfigurieren
 	//---------------------------------
@@ -200,26 +220,24 @@ void setup()
 	//---------------------------------
 	cmd_setup();
 
-
 	motor.stopAllMotors();
 	// Check if in charging station
+	errorHandler.setInfo(F("Check if in charging station\r\n"));
 	for (int i = 0; i<10; i++) { // Read charging voltage
 		chargeSystem.run();
 	}
 	if (chargeSystem.isInChargingStation()) {
+		errorHandler.setInfo(F("Charging station detected\r\n"));
 		myBlackboard.setBehaviour(BH_CHARGING);
-		_controlManuel = false;
+		CLRTB(TB_CONTROL_MANUAL);
+	}
+	else {
+		errorHandler.setInfo(F("NO Charging station detected\r\n"));
+		errorHandler.setInfo(F("MANUAL MODE ACTIVATED\r\n"));
+		SETTB(TB_CONTROL_MANUAL);
 	}
 
-	//Delete Serial Line Data
-	debug.run();
-	perRX.run();
-	while (debug.readable()) {
-		debug.getChar();
-	}
-	while (perRX.readable()) {
-		perRX.getChar();
-	}
+
 }
 
 void executeLoop() //wird von ui.cpp verwendet wenn Hilfe ausgegeben wird
@@ -229,10 +247,10 @@ void executeLoop() //wird von ui.cpp verwendet wenn Hilfe ausgegeben wird
 
 void loop()
 {
-	debug.run();
-	perRX.run();
+	
 
 	//Show that loop is running and not hangs
+	/*
 	if (lastTimeShowError == 0) {
 		lastTimeShowError = millis();
 	}
@@ -241,11 +259,13 @@ void loop()
 		doMyLED = !doMyLED;
 		debug.serial.println(lastTimeShowError);
 	}
+	*/
 
 	loopCounter++;
+
 /*
 	if (errorHandler.isErrorActive()) {
-		_controlManuel = true;
+		SETTB(TB_CONTROL_MANUAL);
 		////arbitrator.SetState(STARB_OFF);
 		motor.stopAllMotors();
 
@@ -259,33 +279,24 @@ void loop()
 			errorHandler.printError();
 		}
 	}
-*/
+	*/
+
 	controller.run();
 
 
 	//clcR.testEncoder();
 
-	// Auswerten ob user manuellen mode gesetzt hat und kommando ausführen
+	// Auswerten ob user manuellen mode gesetzt hat und kommando ausfÃ¼hren
 	// Auszuwertende variablen sind in Klasse TSerialEventThread definiert
-	if (_controlManuel) {
+	if (GETTB(TB_CONTROL_MANUAL)) {
 
 	}
 	else {
-
-		// Watchdog functions
-		//--------------------------------------------------
-
-		//if (perimeterSensoren.signalTimedOut() && perimeterSensoren.magnetudeR != 0 && perimeterSensoren.magnetudeL != 0) {
-		//    errorHandler.setError("perimeter signal timed out");
-		//    return;
-		//}
-
-		//--------------------------------------------------
-
 		myBehaviour.loop();
 	}
 
 }
+
 
 
 

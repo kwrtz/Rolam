@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -20,27 +20,34 @@ Private-use only! (you need to ask for a commercial-use)
 
 #include "tables.h"
 
-bool  table_b[TABLE_B_END];  // 0 = false, 1 = true
+
+uint32_t table_b[TABLE_B_COUNT] = {0,0,0,0};  // 0 = false, 1 = true
 int   table_i[TABLE_I_END];
 float table_f[TABLE_F_END];
 
 
 void tables_init() {
+	
+	SETTB(TB_CONTROL_MANUAL);
+	SETTB(TB_ACTVATE_AUTO_SPIRAL);
+	CLRTB(TB_SHOW_ROTATE);
+	CLRTB(TB_SHOW_PROCESSING_DATA);
 
-	SETTB(TB_ACTVATE_AUTO_SPIRAL, 1);
-	SETTB(TB_SHOW_ROTATE, 0);
 
 
 
-
-	SETTF(TF_ENCTICKSPERROTATION, 2120.0f);  // Anzahl encoder flanken pro umdrehung - positive und negative flanken.
+	SETTF(TF_ENCTICKSPERROTATION, (1060.0f));  // Anzahl positiver und negativer encoder flanken pro umdrehung
 	SETTF(TF_RADUMFANG_CM, 80.738f); // Radumfang (circumference) in cm 78.54f 81,5
-	SETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED, 1140.0f); // maximale Encoder Geschwindigkeit bei voller Motordrezahl (ticks pro sek).
-	SETTF(TF_MAX_WHEEL_RPM, 32.62f); // max rounds per  minute the wheel should reach when speed is 100% 
-	SETTF(TF_DISTANCE_BETWEEN_WHEELS_CM, 37.0f);
+//	SETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED, 265.0f); // maximale Encoder Geschwindigkeit bei voller Motordrezahl (ticks pro sek).
+														   // 530 ticksPerRevolution: @ 30 rpm  => 0.5 rps => 1160 ticksPerSec => 1140 gesetzt.
+														   // 2000 ticksPerRevolution: @ 30 rpm  => 0.5 rps => 1000 ticksPerSec
+	SETTF(TF_MAX_WHEEL_RPM, 33.0f); // max rounds per  minute the wheel should reach when speed is 100% 
+	SETTF(TF_DISTANCE_BETWEEN_WHEELS_CM, 37.0f);  // Distance on bottom not on top!!!
 	SETTF(TF_MAX_SPIRAL_RADIUS_CM, 150.0f);
 	SETTF(TF_START_SPIRAL_RADIUS_CM, 27.0f);
 	SETTF(TF_SPIRAL_SEGMENTS, 16.0f);
 
 
+
 }
+

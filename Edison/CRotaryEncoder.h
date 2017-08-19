@@ -1,6 +1,6 @@
 // CRotaryEncoder.h
 // https://developer.mbed.org/users/Raabinator/code/CRotaryEncoder/
-// Changed for own needs 2017 Kai Würtz
+// Changed for own needs 2017 Kai WÃ¼rtz
 // 
 
 #ifndef _CROTARYENCODER_h
@@ -12,7 +12,7 @@
 	#include "WProgram.h"
 #endif
 
-#include "DigitalInOut.h"
+#include "InOutInterface.h"
 
 /* This Class handles a rotary encoder like the one from Pollin electronic (Panasonic EVEP...).
 * It uses two pins, one creating an interrupt on change.
@@ -47,25 +47,27 @@
 class CRotaryEncoder
 {
 public:
-	CRotaryEncoder(DigitalIn &_pinA, DigitalIn &_pinB);
+	CRotaryEncoder(DigitalIn &_pinA);
 	~CRotaryEncoder();
 
 	void isReversed();
+	void directionIsForward();
+	void directionIsBackward();
 
 	long getTickCounter();
 	void resetTickCounter();
+
 	unsigned long getAbsTicksCounter();
 	void resetAbsTicksCounter();
 
 	void rise(void);
-	void fall(void);
 
 private:
+	bool m_direction_backward; //False = direction forward else backwards
 	DigitalIn &m_pinA;
-	DigitalIn &m_pinB;
 	volatile long    m_ticks;     // Counts +/-
 	volatile unsigned long  m_abs_ticks;     //  // Counts + only
-	bool _isReversed;
+	bool m_isReversed;
 
 
 
@@ -74,4 +76,5 @@ private:
 
 
 #endif
+
 

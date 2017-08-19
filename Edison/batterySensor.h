@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -28,11 +28,13 @@ Private-use only! (you need to ask for a commercial-use)
 #endif
 
 #include "Thread.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "errorhandler.h"
 
-extern TErrorHandler errorHandler;
+#define BATTERYFACTOR_BS 10.9f // Normally: (100+10) / 10; Voltagedivider. 10.9 determined by measuring
+#define DIODEDROPVOLTAGE_BS 0.4f
+
 
 class TbatterieSensor : public Thread
 {
@@ -44,7 +46,7 @@ public:
     float voltage;
 
     void setup() {
-        sensorValue = aiBATVOLT.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
+        sensorValue = aiBATVOLT.getVoltage(); // Converts and read the analog input value (value from 0.0 to 1.0)
         voltage = 29;
     }
 
@@ -53,8 +55,8 @@ public:
         // Wird alle 1000ms aufgerufen
         runned();
 
-        sensorValue = aiBATVOLT.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
-        float batvolt = sensorValue * 34.0196248f;
+        sensorValue = aiBATVOLT.getVoltage(); 
+        float batvolt = sensorValue * BATTERYFACTOR_BS + DIODEDROPVOLTAGE_BS; // The diode sucks 0.4V
 
         const float accel = 0.1;
 
@@ -62,6 +64,7 @@ public:
             voltage = batvolt;
         else
             voltage = (1.0f - accel) * voltage + accel * batvolt;
+
 
         if (voltage < 21.7f) {
             sprintf(errorHandler.msg,"!03,arbitrator switch off voltage reached\r\n");
@@ -80,3 +83,4 @@ public:
 };
 
 #endif
+

@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -525,3 +525,4 @@ public:
 ***********************************/
 
 #endif
+

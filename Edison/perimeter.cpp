@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -20,7 +20,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 //#include <algorithm>   //for min/max
 #include "perimeter.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "errorhandler.h"
 
@@ -77,7 +77,7 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
     if ( magl > 0) {
         signalCounterL = min(signalCounterL + 1, 2);
 
-        if (signalCounterL == 0) // 0 überspringen
+        if (signalCounterL == 0) // 0 Ã¼berspringen
             signalCounterL++;
 
 
@@ -93,7 +93,7 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
     else if (magl < 0) {
         signalCounterL = max(signalCounterL - 1, -2);
 
-        if (signalCounterL == 0) // 0 überspringen
+        if (signalCounterL == 0) // 0 Ã¼berspringen
             signalCounterL--;
 
         lastTimeSignalReceivedL = millis();
@@ -101,8 +101,8 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
 
     // ** lost ** _magnetudeL.sIn16t == 0
     else {  // Wenn kein Signal erkannt wurde ist amplitude 0. Dann wird das letzte Signal als aktuell angenommen bzw. eingefroren.
-        // Wenn Sensor direkt über der Leitung ist Amplitude auch 0
-        // Über signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
+        // Wenn Sensor direkt Ã¼ber der Leitung ist Amplitude auch 0
+        // Ãœber signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
         /*
         if (signalCounterL > 0)
             signalCounterL--;
@@ -120,7 +120,7 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
     if (magr > 0) {
         signalCounterR = min(signalCounterR + 1, 2);  //Inside
 
-        if (signalCounterR == 0) // 0 überspringen
+        if (signalCounterR == 0) // 0 Ã¼berspringen
             signalCounterR++;
 
         lastTimeSignalReceivedR = millis();
@@ -140,8 +140,8 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
         lastTimeSignalReceivedR = millis();
 
     } else { // Wenn kein Signal erkannt wurde ist amplitude 0. Dann wird das letzte Signal als aktuell angenommen bzw. eingefroren.
-        // Wenn Sensor direkt über der Leitung ist Amplitude auch 0
-        // Über signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
+        // Wenn Sensor direkt Ã¼ber der Leitung ist Amplitude auch 0
+        // Ãœber signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
         /*
         if (signalCounterR > 0)
            signalCounterR--;
@@ -159,7 +159,7 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
     if (magb > 0) {
         signalCounterB = min(signalCounterB + 1, 2);  //inside
 
-        if (signalCounterB == 0) { // 0 überspringen
+        if (signalCounterB == 0) { // 0 Ã¼berspringen
             signalCounterB++;
             perimeterLastTransitionTimeB = millis();
         }
@@ -174,7 +174,7 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
     } else if (magb < 0) {
         signalCounterB = max(signalCounterB - 1, -2); // outside
 
-        if (signalCounterB == 0) { // 0 überspringen
+        if (signalCounterB == 0) { // 0 Ã¼berspringen
             signalCounterB--;
             perimeterLastTransitionTimeB = millis();
         }
@@ -182,8 +182,8 @@ void TPerimeterThread::CaluculateInsideOutside( int16_t magl, int16_t magr, int1
         lastTimeSignalReceivedB = millis();
 
     } else { // Wenn kein Signal erkannt wurde ist amplitude 0. Dann wird das letzte Signal als aktuell angenommen bzw. eingefroren.
-        // Wenn Sensor direkt über der Leitung ist Amplitude auch 0
-        // Über signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
+        // Wenn Sensor direkt Ã¼ber der Leitung ist Amplitude auch 0
+        // Ãœber signalTimedOut kann dann festgestellt werden, ob das Signal zu lange nicht mehr auftrat
 
 
         /*
@@ -332,7 +332,7 @@ void TPerimeterThread::UpdateState( EPerReceiveState t )
                     sprintf(errorHandler.msg,"!03,%hu %hu %i %i %hu %hu\r\n",header1, header2, _magnetudeL.sIn16t , _magnetudeR.sIn16t ,  checksumm,  checksummcalculated);
                     errorHandler.setInfo();
                 }
-                checksumError++;    //Errorcounter hochzählen
+                checksumError++;    //Errorcounter hochzÃ¤hlen
                 //neueDatenEmpfangen = false;  // Mitteilen, dass keine neuen Daten da sind
                 //Serial.println("Checksum Not OK: ");
             }
@@ -370,7 +370,7 @@ bool TPerimeterThread::isNearPerimeter()
     }
 
     //return false;
-    long threshold = (magMax * 95L) / 100L; //95% vom Maximalwert ist untere schwelle für bestimmung ob nah am perimeter wire
+    long threshold = (magMax * 95L) / 100L; //95% vom Maximalwert ist untere schwelle fÃ¼r bestimmung ob nah am perimeter wire
 
     if (magnetudeL > threshold && magnetudeR > threshold)
         return true;
@@ -446,5 +446,6 @@ bool TPerimeterThread::isBackOutside()
 
     return false;
 }
+
 
 

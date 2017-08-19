@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -37,9 +37,7 @@ void TMotorInterface::setup(TMowClosedLoopControlThread *_M, TClosedLoopControlT
 	pcL = _pcL;
 	pcR = _pcR;
 	M = _M;
-	driveCommand = eSTOP;
-	turnWinkelFaktor = 1.49; // Wenn roboter rotiert ist dies der Faktor, der mit dem soll rotations winkel multipliziert wird. Damit ergibt sich der rad dreh winkel der für den turn zu fahren ist.
-	lastRunDistanceMeasurement = 0;
+
 	flagShowDistance = false;
 }
 
@@ -133,8 +131,6 @@ void TMotorInterface::turnTo(float _angle, long _speed)
 	pcL->rotateCM(weg, _speed);
 	pcR->rotateCM(-1 * weg, _speed);
 
-	//pcL->rotateAngle(_angle*turnWinkelFaktor,_speed);
-	//pcR->rotateAngle(-1*_angle*turnWinkelFaktor,_speed);
 }
 
 bool  TMotorInterface::isPositionReached()
@@ -216,7 +212,7 @@ void TMotorInterface::stopDistanceMeasurementRCoilOut()
 
 float TMotorInterface::getDistanceDiffInCMForCoilOut()
 {
-	if (coilOutMeasurementRunningL || coilOutMeasurementRunningR) { //Eine Spule nicht draußen gewesen
+	if (coilOutMeasurementRunningL || coilOutMeasurementRunningR) { //Eine Spule nicht drauÃŸen gewesen
 		return 100.0f;
 	}
 
@@ -349,8 +345,8 @@ long TMotorInterface::getDistanceInMeterAreax()
 	drivenDistance = abs(drivenDistance);
 
 	if (flagShowDistance) {
-		if (millis() - lastRunDistanceMeasurementWorkx  > 500) {
-			lastRunDistanceMeasurementWorkx = millis();
+		if (millis() - lastRunDistanceMeasurementAreaX  > 500) {
+			lastRunDistanceMeasurementAreaX = millis();
 			sprintf(errorHandler.msg, "!03,DistAreax M: %ld encCounts %ld\r\n", drivenDistance, encCounts);
 			errorHandler.setInfo();
 		}
@@ -362,88 +358,10 @@ long TMotorInterface::getDistanceInMeterAreax()
 
 
 
-#ifdef  ENCODER_TEST
-/******************************************************************************/
-// The encoder must only rotating to use this function. Therfore  the motor can be driven from external powersupply.
-/******************************************************************************/
-void TMotorInterface::testEncoder()
-{
-	L->controlDirect(40);
-	R->controlDirect(40);
-	if (encoderL.interruptExecuted() == true) {
-		encoderL.deleteFlagIntExecuted();
-		debug << "ML getPulseTime: " << encoderL.getPulseTime() << " getSpeedCounter: " << encoderL.getTickCounter() << " getPositionCounter:" << encoderL.getPositionCounter() << endl;
-	}
-	if (encoderR.interruptExecuted() == true) {
-		encoderR.deleteFlagIntExecuted();
-		debug << "MR getPulseTime: " << encoderR.getPulseTime() << " getTickCounter: " << encoderR.getTickCounter() << " getPositionCounter:" << encoderR.getPositionCounter() << endl;
-	}
-
-}
-#endif
-
-// Fährt vor und zurück nach Zeit. Test von TClosedLoopControlThread
-void TMotorInterface::testForwardStopBackward()
-{
-
-	static unsigned long  nextTime = 0;
-	static unsigned long lasttime = 3000;
-	unsigned long now = 0;
-	static int state = 3;
-
-	now = millis();
-	if (now < nextTime) return;
-	nextTime = millis() + 100;  //=Ta
 
 
-								//debug << " now " << now << " lasttime " << lasttime <<  endl;;
 
-
-	switch (state) {
-	case 0:
-		errorHandler.setInfo(F("0\r"));
-		if ((now - lasttime) > 4000) {
-			state = 1;
-			lasttime = now;
-			stop();
-		}
-
-		break;
-
-	case 1:
-		errorHandler.setInfo(F("1\r"));
-		if (isStopped()) {
-			setSpeed(-50);
-
-			state = 2;
-		}
-
-		break;
-
-	case 2:
-		errorHandler.setInfo(F("2\r"));
-		if ((now - lasttime) > 4000) {
-			state = 3;
-			lasttime = now;
-			stop();
-		}
-		break;
-
-	case 3:
-		errorHandler.setInfo(F("3\r"));
-		if (isStopped()) {
-			setSpeed(50);
-			state = 0;
-		}
-		break;
-
-	default:
-		break;
-	}
-
-}
-
-// Fährt vor und zurück nach Position. Test von TPositionControl
+// FÃ¤hrt vor und zurÃ¼ck nach Position. Test von TPositionControl
 void TMotorInterface::testPosForwardStopBackward()
 {
 
@@ -488,4 +406,5 @@ void TMotorInterface::testPosForwardStopBackward()
 	}
 
 }
+
 

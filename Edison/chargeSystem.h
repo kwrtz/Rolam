@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -28,11 +28,12 @@ Private-use only! (you need to ask for a commercial-use)
 #endif
 
 #include "Thread.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "errorhandler.h"
 
-extern TErrorHandler errorHandler;
+#define BATTERYFACTOR_CS  10.9f // ((100.0f+10.0f)/10.0f)    // ADC voltage to charge voltage. 10.9 determined by measuring 
+#define CURRENTFACTOR_CS  0.5f         // ADC voltage to current ampere
 
 class TchargeSystem : public Thread
 {
@@ -49,8 +50,8 @@ public:
     float chargeCurrent;
 
     void setup() {
-        sensorValueCV = aiCHARGEVOLTAGE.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
-        sensorValueCC = aiCHARGECURRENT.read();
+        sensorValueCV = aiCHARGEVOLTAGE.getVoltage(); // Converts and read the analog input value (value from 0.0 to 1.0)
+		sensorValueCC = aiCHARGECURRENT.getVoltage();
         chargeVoltage = 0;
         chargeCurrent = 0;
         flagShowChargeSystem = false;
@@ -72,10 +73,10 @@ public:
         // Wird alle 53ms aufgerufen
         runned();
 
-        sensorValueCV = aiCHARGEVOLTAGE.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
-        float chargeVoltage1 = sensorValueCV * 34.0196248f;
-        sensorValueCC = aiCHARGECURRENT.read();
-        float chargeCurrent1 = sensorValueCC * 1.42f; 
+        sensorValueCV = aiCHARGEVOLTAGE.getVoltage();
+        float chargeVoltage1 = sensorValueCV  * BATTERYFACTOR_CS;
+        sensorValueCC = aiCHARGECURRENT.getVoltage();
+        float chargeCurrent1 = sensorValueCC * CURRENTFACTOR_CS;
 
         const float accel = 0.1f;
 
@@ -109,7 +110,6 @@ public:
         if (chargeVoltage > 15.0f)  {
             return true;
         }
-
         return false;
     }
 
@@ -127,3 +127,4 @@ public:
 };
 
 #endif
+

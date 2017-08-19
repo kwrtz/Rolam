@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -97,7 +97,7 @@ public:
 
     virtual void onInitialize(Blackboard& bb) {
         bb.cruiseSpeed = bb.CRUISE_SPEED_LOW;
-        bb.motor.rotateAngle(5,bb.cruiseSpeed); // 20 grad vorwärtsfahren
+        bb.motor.rotateAngle(5,bb.cruiseSpeed); // 20 grad vorwÃ¤rtsfahren
         bb.driveDirection = DD_FORWARD;
     }
 
@@ -231,3 +231,4 @@ public:
 };
 
 #endif
+

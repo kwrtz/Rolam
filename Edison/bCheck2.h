@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -315,7 +315,7 @@ public:
     virtual void onInitialize(Blackboard& bb) {
         if( state == 0) {
             if( bb.perimeterSensoren.isLeftOutside() && bb.perimeterSensoren.isRightOutside() && bb.perimeterSensoren.isBackOutside()) {
-                if( bb.perimeterSensoren.magnetudeL < 0 && bb.perimeterSensoren.magnetudeR < 0  && bb.perimeterSensoren.magnetudeB < 0 ) { // Es kann sein dass die Zähler etwas träge sind.
+                if( bb.perimeterSensoren.magnetudeL < 0 && bb.perimeterSensoren.magnetudeR < 0  && bb.perimeterSensoren.magnetudeB < 0 ) { // Es kann sein dass die ZÃ¤hler etwas trÃ¤ge sind.
                     startTime = millis();
                     state = 1;
                     sprintf(errorHandler.msg,"!03,All Coils Outside\r\n");
@@ -356,3 +356,4 @@ public:
 };
 
 #endif
+

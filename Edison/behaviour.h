@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -28,7 +28,7 @@ Private-use only! (you need to ask for a commercial-use)
 #include "WProgram.h"
 #endif
 
-#include "global.h"
+#include "helpers.h"
 #include "Blackboard.h"
 #include "BehaviourTree.h"
 
@@ -54,3 +54,4 @@ public:
     void loop();
 };
 #endif
+

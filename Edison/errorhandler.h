@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -50,7 +50,7 @@ debug.serial.println(F("\r\nBUFFER END ==================================:"));
 
 #include <string>
 #include <stdio.h>
-#include "global.h"
+#include "helpers.h"
 #include "RingBufferChar.h"
 #include <stdarg.h>
 
@@ -94,4 +94,5 @@ public:
 extern TErrorHandler errorHandler; // in main.cpp deklariert
 
 #endif
+
 

@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -32,7 +32,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 #include "Thread.h"
 #include "PID_v2.h"
-#include "global.h"
+#include "helpers.h"
 #include "Sabertooth.h"
 #include "hardware.h"
 #include "errorhandler.h"
@@ -42,6 +42,8 @@ Private-use only! (you need to ask for a commercial-use)
 //#define   MAXSPEED 1140l                // MAXSPEED maximale Geschwindigkeit (ticks pro sek). Motor erreicht eine Geschwindigkeit von 1470 Ticks/sek bei motorpower von 127. Wird in Funktion setspeed verwendet. 1140 bedeuten 100%.
 //static const double  TICKSPERCM = 26.9926f;           // Anzahl encoderticks per cm
 //#define  TICKSPERM  2699.26f
+
+
 
 
 enum EMotorState {
@@ -60,11 +62,10 @@ private:
 	virtual void BeginState(EMotorState t);
 	virtual void EndState(EMotorState t);
 
-	uint8_t motorNo;  // Motornumber welcher motor soll von sabertooh angesprochen werden
 
 
-	unsigned long lasttTimeEncoderRead;
-	unsigned long lasttTimeSpeedShown;
+	unsigned long lastTimeEncoderRead;
+	unsigned long lastTimeSpeedShown;
 	unsigned long timeLastCheckMotorStall;
 
 
@@ -73,31 +74,44 @@ private:
 	void readEncoder(); // reads encodere and calcualtes current_speed
 
 						// PID input and und parameter
-	double Kp, Ki, Kd;
-	double Setpoint, current_speed, Output; // Pid setpoint, input und oputput
 
-	bool useRamp;
+	double setpointRPM, current_speedRPM, Output; // Pid setpoint, input und oputput
+	double feedforwardRPM;
+
 
 	// ramping the setpoint with acceleration values
-	void rampSetpoint(double  _sollSpeed);  //Setpoint wird auf _sollSpeed gerampt. Dazu wird bei jedem aufruf acceleration abgezogen oder dazugezählt.
-	double acceleration; // Konstante für beschleunigung
-	double deceleration; // Konstante für langsamer werden.
+	void rampSetpoint(double  _sollSpeed);  //Setpoint wird auf _sollSpeed gerampt. Dazu wird bei jedem aufruf acceleration abgezogen oder dazugezÃ¤hlt.
 
-	double  sollSpeed; // Soll speed wird von setSpeed gesetzt. EncoderTicks/Sek
+
+	double  sollSpeedRPM; // Soll speed wird von setSpeed gesetzt. EncoderTicks/Sek
+
+	// Test functions
+	unsigned long lastTickCounterShowEnc;
+	unsigned long lastTimeEncoderReadShowEnc;
+	
 
 public:
 
+	uint8_t motorNo;  // Motornumber welcher motor soll von sabertooh angesprochen werden
 
 	PIDVEL myPID;
 
 	CRotaryEncoder *myEncoder;
 
+
+
+	bool useRamp;
+
+	float rampAccRPM; // Constant for acceleration
+	float rampDecRPM; // Constant for deceleration
+	float deadbandRPM; // In diesem Bereich wird setpointRPM auf deadbandRPM gesetzt um die AgilitÃ¤t beim Starten der Rampe zu erhÃ¶hen.
+	float setOutputZeroAtRPm; // If sollSpeedRPM should be 0, this is the threshold  where output and feedforward is set to zero to improve agility. Positive value!
+	float stopThresholeAtRpm; // If the motor is running at this threshold, it is asssumed, that th motor stands while waiting in state STM_STOP_ROLLOUT
 	float current_speed_mph;
 
 	void setup(uint8_t motorNumber, CRotaryEncoder *enc);
 
 	void setSpeed(long  speed);  // -100% bis 100% Motorgeschwindigkeit festlegen und sofort losfahren
-	void setSpeedTPS(long  speed); // geschwindigkeit in encoder ticks pro sekunde -/+ und sofort losfahren
 
 	void stop(); // motor stoppen
 	void hardStop();
@@ -116,18 +130,32 @@ public:
 	void setBaudRate();
 
 	bool flagShowSpeed; // show speed on debug interface
+
 	void controlDirect(int speed); // set direct speed through sabertooth -127 to 127
 
-								   // Uncomment test routines if you need and uncomment DRIVEMOTOR_TEST 1 in drivemotoe.cpp
-								   /*
-								   void testMotors();
-								   void testEncoder();
-								   void testReadEncoder();
-								   void testForwardStopBackward();
-								   */
+	void showConfig();
+
+	// Test functions
+	//----------------
+	unsigned long lastrunTest; // used for PID tune
+
+	int stateTest;
+	int speedMinTest, speedMaxTest; //speed for PID tune
+
+	bool flagShowEncoder; // show encoder on debug interface
+	void showEncoder();
+
+	bool flagControldirect;
+
+	bool flagMotorStepSpeed; // accelerate and decelerate the motor form 80% to 60 %
+	void motorStepSpeed();
+
+	bool flagMotorFSB; // drive forward to 80% stop drive backward to -80% stop
+	void testForwardStopBackward();
 
 };
 
 
 
 #endif
+

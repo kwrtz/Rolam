@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -37,12 +37,11 @@ Private-use only! (you need to ask for a commercial-use)
 #include "bPerimeterTracking.h"
 #include "chargeSystem.h"
 #include "bPerOutside.h"
+#include "tables.h"
 
 extern unsigned long loopCounter;
-extern bool processingConnectedFlag;
 
 extern void executeLoop();
-extern bool _controlManuel;
 extern unsigned long lastTimeShowError;
 
 // mow motor closed loop control - no closed loop used
@@ -61,7 +60,7 @@ extern TMotorInterface motor;
 extern TPerimeterThread perimeterSensoren;
 // Messung der Batteriespannung
 extern TbatterieSensor batterieSensor;
-// Messung des Mähmotorstroms
+// Messung des MÃ¤hmotorstroms
 extern TMowMotorSensor mowMotorSensor;
 // SRF08 Range Sensor Messung der Entfernung
 extern TrangeSensor rangeSensor;
@@ -81,7 +80,7 @@ extern TErrorHandler errorHandler;
 void printSensordata()
 {
 
-    if(processingConnectedFlag) {
+    if(GETTB(TB_SHOW_PROCESSING_DATA)) {
         unsigned long loopsPerSec;
         loopsPerSec = loopCounter;
         loopCounter = 0;
@@ -97,3 +96,4 @@ void printSensordata()
      }
 
 }
+

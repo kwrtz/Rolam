@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -30,7 +30,7 @@ Private-use only! (you need to ask for a commercial-use)
 #include "NodeStack.h"
 
 #include "hardware.h"
-#include "global.h"
+#include "helpers.h"
 #include "batterySensor.h"
 #include "motor.h"
 #include "perimeter.h"
@@ -45,7 +45,7 @@ Private-use only! (you need to ask for a commercial-use)
     
 enum enuDriveDirection {
     DD_FORWARD = 0,
-    DD_FORWARD_INSIDE = 1, //Darf eigentlich nicht vorkommen wenn ich prüfe, dass Spule hinten rausfährt beim zurückfahren
+    DD_FORWARD_INSIDE = 1, //Darf eigentlich nicht vorkommen wenn ich prÃ¼fe, dass Spule hinten rausfÃ¤hrt beim zurÃ¼ckfahren
     DD_OVERRUN = 2,
     DD_REVERSE_ESC_OBST  = 3,
     DD_REVERSE_INSIDE = 4,
@@ -162,3 +162,4 @@ public:
 
 
 #endif
+

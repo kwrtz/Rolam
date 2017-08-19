@@ -49,3 +49,4 @@ void Thread::run() {
 		_onRun();
 
 }
+

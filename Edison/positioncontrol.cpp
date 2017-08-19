@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -20,7 +20,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 #include <math.h>
 #include "positioncontrol.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "tables.h"
 #include "errorhandler.h"
@@ -38,106 +38,95 @@ Private-use only! (you need to ask for a commercial-use)
 
 void TPositionControl::setup(TClosedLoopControlThread *_motor, CRotaryEncoder *enc)
 {
+
+	flagShowResults = false;
+	sollSpeedPercentage = 0; // Soll speed wird von setSpeed gesetzt und somit vom user gesetzt
+	sollPositionCM = 0;
+
 	posKp = 2;
-	sollSpeed = 0; // Soll speed wird von setSpeed gesetzt und somit vom user gesetzt
-	sollDistance = 0;
+	stopCmBeforeTarget = 5;  // Must be positive and >0
+	addCmToTargetPosition = 4;
 
 	motor = _motor;
 	myEncoder = enc;
 	SetState(STP_STOP);
-
 }
 
 
 /*********************************************************/
-// Pos FSM ausführen
+// Pos FSM ausfÃ¼hren
 /*********************************************************/
 void TPositionControl::run()
 {
 	runned();
-	// Alle 100ms Encoder aktualisieren
 	LoopFSM();
 }
 
 
 /*********************************************************/
-// Position Zustände Do State
+// Position ZustÃ¤nde Do State
 /*********************************************************/
 void TPositionControl::UpdateState(EPosState t)
 {
 
-	long   speed, positionError;
-	long positionCounter;
+	float positionErrorCM, istPositionCM;
+	long  speed;
 
 
 
 	switch (t) {
-	case STP_START_ANGLE:
-		//Serial.println("STP_START_ANGLE ");
-		//myEncoder->resetPositionCounter();
-		startPositionCounter = myEncoder->getTickCounter();
-		sollDistance = getCountsForDegree(sollAngle);
-
-		//sprintf(errorHandler.msg,"!03,sollDistance: %ld lastPositionCounter %ld\r\n",sollDistance, lastPositionCounter);
-		//errorHandler.setInfo();
-		if (sollAngle < 0)
-			sollDistance -= 40; //40 counts dazuzählen, da unten bei if (positionError < 28) gestoppt wird
-		else if (sollAngle > 0)
-			sollDistance += 40; //40 counts dazuzählen, da unten bei if (positionError < 28) gestoppt wird
-		SetState(STP_DRIVETOPOSITION);
-		break;
-
 
 	case STP_START_CM:
 		//Serial.println("STP_START_ANGLE ");
 		//myEncoder->resetPositionCounter();
-		startPositionCounter = myEncoder->getTickCounter();
-		sollDistance = getCountsForCM(sollCM);
+		startPositionCM = getCMForCounts(myEncoder->getTickCounter());
 
-		//sprintf(errorHandler.msg,"!03,sollDistance: %ld lastPositionCounter %ld\r\n",sollDistance, lastPositionCounter);
-		//errorHandler.setInfo();
-		if (sollCM < 0)
-			sollDistance -= 40; //40 counts dazuzählen, da unten bei if (positionError < 28) gestoppt wird
-		else if (sollCM > 0)
-			sollDistance += 40; //40 counts dazuzählen, da unten bei if (positionError < 28) gestoppt wird
+		inputPositionCM = sollPositionCM; // Save user input position in order sollPositionCM will be changed below
+
+		if (sollPositionCM < 0)
+			sollPositionCM -= addCmToTargetPosition; //cm dazuzÃ¤hlen, da unten bei if (positionError < 28) gestoppt wird
+		else if (sollPositionCM > 0)
+			sollPositionCM += addCmToTargetPosition; //cm dazuzÃ¤hlen, da unten bei if (positionError < 28) gestoppt wird
 		SetState(STP_DRIVETOPOSITION);
+
+		if (flagShowResults) {
+			errorHandler.setInfoNoLog(F("!03,PC motor %i soll changed from: %fcm to: %fcm\r\n"), motor->motorNo, inputPositionCM, sollPositionCM);
+		}
 		break;
 
 
 
 	case STP_DRIVETOPOSITION:
 
-		positionCounter = myEncoder->getTickCounter() - startPositionCounter;
+		istPositionCM = getCMForCounts(myEncoder->getTickCounter()) - startPositionCM;
 
 		//sprintf(errorHandler.msg,"!03,buff: %ld positionCounter %ld\r\n",buff, positionCounter);
 		//errorHandler.setInfo();
 
-		if (abs(sollDistance) > abs(positionCounter)) { // Wurde sollDistanz bereits überfahren?
+		if (abs(sollPositionCM) > abs(istPositionCM)) { // Wurde sollDistanz noch nicht erreicht?
 
-			positionError = sollDistance - positionCounter;
-			speed = posKp *positionError;
+			positionErrorCM = sollPositionCM - istPositionCM;
+			speed = posKp *positionErrorCM;
 
 			//debug->printf("1. positionError: %ld speed: %ld sollSpeed: %ld\r\n",   positionError, speed, sollSpeed);
 
-			if (abs(speed) > abs(sollSpeed))
-				speed = sollSpeed;
+			if (abs(speed) > abs(sollSpeedPercentage))
+				speed = sollSpeedPercentage;
 
 			//debug->printf("2. positionError: %ld speed: %ld\r\n",   positionError, speed);
 
-			motor->setSpeedTPS(speed);
+			motor->setSpeed(speed);
 
 		}
-		else { // Falls sollposition bereits überfahren
-			positionError = 0;
+		else { // Falls sollposition bereits Ã¼berfahren
+			positionErrorCM = 0;
 		}
 
-		// If the error is within the specified deadband, and the motor is moving slowly enough. Da speed proportional zu positionError ist, muss nur speed abgefragt werden.
-		if (abs(positionError) < 60) { // && positionError < 60) { // 28
-									   //debug->printf("abs(speed):  %ld positionError: %ld \r\n",  abs(speed), positionError);
+		if (abs(positionErrorCM) < stopCmBeforeTarget) {
+			//debug->printf("abs(speed):  %ld positionError: %ld \r\n",  abs(speed), positionError);
 			speed = 0;
 			SetState(STP_TARGETREACHED); // Solldistanz erreicht
 			motor->stop();
-
 		}
 
 		break;
@@ -151,7 +140,13 @@ void TPositionControl::UpdateState(EPosState t)
 	case STP_TARGETREACHED:
 		//Serial.println("STP_TARGETREACHED");
 		if (motor->isStopped()) {
-			//debug->printf("sollDistance: %ld gefahrene Counts: %ld gefahrener Winkel: %ld\r\n", getCountsForDegree(sollAngle), myEncoder->getPositionCounter(), getDegreeForCounts(myEncoder->getPositionCounter()));
+
+			if (flagShowResults) {
+				istPositionCM = getCMForCounts(myEncoder->getTickCounter()) - startPositionCM;
+				positionErrorCM = inputPositionCM - istPositionCM;
+				errorHandler.setInfoNoLog(F("!03,PC motor %i soll: %f  ist: %f error: %f\r\n"), motor->motorNo, inputPositionCM, istPositionCM, positionErrorCM);
+			}
+
 			SetState(STP_STOP);
 		}
 		break;
@@ -175,7 +170,7 @@ void TPositionControl::UpdateState(EPosState t)
 
 long TPositionControl::getCountsForCM(float x)
 {
-	long y;
+	float y;
 	y = (x * GETTF(TF_ENCTICKSPERROTATION)) / GETTF(TF_RADUMFANG_CM);
 	return y;
 }
@@ -189,62 +184,47 @@ float TPositionControl::getCMForCounts(float x)
 
 long TPositionControl::getCountsForDegree(float x)
 {
-	long y;
+	float y;
 	y = x * GETTF(TF_ENCTICKSPERROTATION) / 360.0f;
 	return y;
 }
 
-long TPositionControl::getDegreeForCounts(float x)
+float TPositionControl::getDegreeForCounts(float x)
 {
-	long y;
+	float y;
 	y = x * 360.0f / GETTF(TF_ENCTICKSPERROTATION);
 	return y;
 }
 
 // ---------------------------------------------------------
 // Wurde Sollposition erreicht? Wenn ja werden rotateForward/Backward durch positionReached gelatched
-// Dieser Zustand muss vor beginn einer neuen Wegmessung  mit resetPositionReached() zurückgesetzt werden.
+// Dieser Zustand muss vor beginn einer neuen Wegmessung  mit resetPositionReached() zurÃ¼ckgesetzt werden.
 // ---------------------------------------------------------
 bool  TPositionControl::isPositionReached()
 {
 	return (GetState() == STP_STOP);
 }
 
-// ---------------------------------------------------------
-// speed is 0%-100%. This function calulates the ticks pro sek for the given percentage.
-// ---------------------------------------------------------
-void TPositionControl::setSpeed(long  speed)
-{
-	unsigned long y;
-	y = 0;
-	if (speed != 0)
-		y = mapl(speed, -100, 100, -1 * GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED), GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED));
 
-	sollSpeed = y;
+
+void TPositionControl::rotateAngle(float _angle, long _speedPercentage)
+{
+
+	long counts = getCountsForDegree(_angle);
+	sollPositionCM = getCMForCounts(counts);
+	rotateCM(sollPositionCM, _speedPercentage);
+
+
 }
 
-
-void TPositionControl::rotateAngle(float _angle, long _speed)
+void TPositionControl::rotateCM(float _cm, long _speedPercentage)
 {
-	sollAngle = _angle;
-
-	if (_angle < 0)
-		setSpeed(-1 * abs(_speed));
-	else
-		setSpeed(abs(_speed));
-
-
-	SetState(STP_START_ANGLE);
-}
-
-void TPositionControl::rotateCM(float _cm, long _speed)
-{
-	sollCM = _cm;
+	sollPositionCM = _cm;
 
 	if (_cm < 0)
-		setSpeed(-1 * abs(_speed));
+		sollSpeedPercentage = (-1 * abs(_speedPercentage));
 	else
-		setSpeed(abs(_speed));
+		sollSpeedPercentage = (abs(_speedPercentage));
 
 
 	SetState(STP_START_CM);
@@ -259,19 +239,20 @@ SetState(STP_STOPPOSITIONING);
 }
 */
 
-void TPositionControl::reset()  // Motoren müssen vorher angehalten werden
+void TPositionControl::reset()  // Motoren mÃ¼ssen vorher angehalten werden
 {
-	sollSpeed = 0;
+	sollSpeedPercentage = 0;
 	SetState(STP_STOP);
 }
 
-void TPositionControl::SetPosKp(double Kp)
+void TPositionControl::showConfig()
 {
-
-	posKp = Kp;
-
+	errorHandler.setInfoNoLog(F("!03,PC Config MotorNo: %i\r\n"), motor->motorNo);
+	errorHandler.setInfoNoLog(F("!03,interval: %lu\r\n"), interval);
+	errorHandler.setInfoNoLog(F("!03,posKp: %f \r\n"), posKp);
+	errorHandler.setInfoNoLog(F("!03,stopCmBeforeTarget %f\r\n"), stopCmBeforeTarget);
+	errorHandler.setInfoNoLog(F("!03,addCmToTargetPosition %f\r\n"), addCmToTargetPosition);
 }
-
 
 
 

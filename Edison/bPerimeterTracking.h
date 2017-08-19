@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -159,7 +159,7 @@ public:
         }
 
 
-        if (bb.perimeterSensoren.isBackOutside()) {  // Spule über Fahrbahnmitte nach innen
+        if (bb.perimeterSensoren.isBackOutside()) {  // Spule Ã¼ber Fahrbahnmitte nach innen
             return BH_SUCCESS;
         }
 
@@ -169,16 +169,16 @@ public:
 };
 
 /*
-  Für das finden eines Dreiecks in der Schleife wird ständig nach einer Linkskurve "Ausschau" gehalten.
+  FÃ¼r das finden eines Dreiecks in der Schleife wird stÃ¤ndig nach einer Linkskurve "Ausschau" gehalten.
   Dazu werden alle 500ms die Encoderdaten ausgelesen und ausgewertet.
   Wenn eine Linkskurve erkannt wurde wird die Zeit festgehaten und timeLeftTurnFound gesetzt.
-  Wenn ein Dreieck vohanden ist, wird der Robbi nicht mehr so einfach von innen nach außen wechseln können,
-  da er nach der scharfen Linkskurfe bereits über das Ende des Dreieckes gefahren ist. Daher wird er auf jeden Fall in die if Abfrage:
+  Wenn ein Dreieck vohanden ist, wird der Robbi nicht mehr so einfach von innen nach auÃŸen wechseln kÃ¶nnen,
+  da er nach der scharfen Linkskurfe bereits Ã¼ber das Ende des Dreieckes gefahren ist. Daher wird er auf jeden Fall in die if Abfrage:
   "if ( (millis()-lastTransitionTime) > 3500 )" gehen wo er rotiert. Hier wird geguckt, ob die Linkskurve innerhalb
   der letzten 5 Sek. gefunden wurde. Wenn ja, wird flagTriangleFound = true gesetzt und rotiert, bis die andere Seite des Dreiecks erreicht
-  wurde. Wenn diese erreicht wurde, geht die Spule von innen nach außen. Bei diesem Übergang wird geprüft ob ein Dreieck gefunden wurde mit
-  flagTriangleFound. Weiterhin muss mindesten noch eine Kurve von 80 nach rechts gefahren worden sein und die  Zeit für die Rechtskurve muss mindestens
-  4Sek. gedauert haben. Dann werden die Zweige im BehaviourTree mit  bb.flagFollowLine = false;  bb.flagGoHome = true; umgeschaltet, so dass der Mower wieder normal fährt
+  wurde. Wenn diese erreicht wurde, geht die Spule von innen nach auÃŸen. Bei diesem Ãœbergang wird geprÃ¼ft ob ein Dreieck gefunden wurde mit
+  flagTriangleFound. Weiterhin muss mindesten noch eine Kurve von 80 nach rechts gefahren worden sein und die  Zeit fÃ¼r die Rechtskurve muss mindestens
+  4Sek. gedauert haben. Dann werden die Zweige im BehaviourTree mit  bb.flagFollowLine = false;  bb.flagGoHome = true; umgeschaltet, so dass der Mower wieder normal fÃ¤hrt
   bis die andere Seite des Perimeters erreicht wurde.
 
 */
@@ -768,3 +768,4 @@ public:
 ***********************************/
 
 #endif
+

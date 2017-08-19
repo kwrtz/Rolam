@@ -28,7 +28,7 @@ Released into the public domain.
 #include "Thread.h"
 #include "inttypes.h"
 
-#define MAX_THREADS     20
+#define MAX_THREADS     25
 
 class ThreadController : public Thread {
 protected:
@@ -60,3 +60,4 @@ public:
 };
 
 #endif
+

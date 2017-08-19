@@ -17,6 +17,8 @@
 * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+* Adapted to Arduino and own needs 2017 Kai Würtz
 */
 
 #ifndef _BUFFERSERIAL_h
@@ -28,7 +30,7 @@
 	#include "WProgram.h"
 #endif
 
-#define ARDBUFFER 16
+//#define ARDBUFFER 16
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>  
@@ -38,25 +40,29 @@ class BufferSerial
 private:
 	
 protected:
+	/*	
 	int _size;
 	int _present;
 	volatile int _last;
 	volatile char* _buf;
 	void _setup(const int& size);
 	int _getShift(volatile const int& value);
+	*/
+
 
 public:
 	BufferSerial(HardwareSerial& s, const int& bufferSize);
 
 	HardwareSerial &serial;
 	virtual ~BufferSerial();
-	void run(void);
+//	void run(void);
 	char getChar(void);
-	bool unreadable(void);
-	bool readable(void);
+	int unreadable(void);
+	int readable(void);
 	//int printf(char *str, ...);
 };
 
 
 #endif
+
 

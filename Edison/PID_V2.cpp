@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -26,12 +26,12 @@ by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 
 This Library is licensed under a GPLv3 License
 
-Changed for own needs kai Würtz
+Changed for own needs kai WÃ¼rtz
 **********************************************************************************************/
 
 #include "PID_V2.h"
 #include <math.h>
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 
 /*Constructor (...)*********************************************************
@@ -66,7 +66,7 @@ pid Output needs to be computed.  returns true when the output is computed,
 false when nothing has been done.
 Duration on DUE for calculation 12ms
 
-ACHTUNG abgeändert. Muss in bestimmten Zeitabständen aufgerufen werden
+ACHTUNG abgeÃ¤ndert. Muss in bestimmten ZeitabstÃ¤nden aufgerufen werden
 **********************************************************************************/
 bool PIDPOS::Compute()
 {
@@ -115,7 +115,7 @@ bool PIDPOS::Compute()
 
 	// --- calculate derivative value ---
 	//double DTerm = kd / Ta *  (input - lastInput);
-	double DTerm = kd / Ta *  (error - lastError);
+	double DTerm =  (error - lastError) * kd / Ta ;
 
 
 	// --- PID Diff Improvement ---
@@ -125,7 +125,7 @@ bool PIDPOS::Compute()
 	}
 
 	/*Compute PID Output*/
-	//double output = PTerm + ITerm - DTerm;  // mind the minus sign!!!
+	//double output = PTerm + ITerm - DTerm;  // mind the minus sign for using input in DTerm!!!
 	double output = PTerm + ITerm + DTerm;
 
 	if (output > outMax) output = outMax;
@@ -301,7 +301,7 @@ reliable defaults, so we need to have the user set them.
 ***************************************************************************/
 void PIDVEL::setup(double* Input, double* Output, double* Setpoint, double Kp, double Ki, double Kd, int ControllerDirection)
 {
-
+	flagShowPID = false;
 	myOutput = Output;
 	myInput = Input;
 	mySetpoint = Setpoint;
@@ -341,17 +341,20 @@ bool PIDVEL::Compute()
 		return false;
 	}
 
-	output = output
-		+ kp * (error - error1)
-		+ ki * Ta * error
-		+ kd / Ta * (input - 2 * input1 + input2);
+
+	double pterm = kp * (error - error1);
+	double iterm = ki * Ta * error;
+	double dterm = (kd  * (input - 2 * input1 + input2) ) / Ta;
+	output = output + pterm + iterm - dterm;
+
 
 	// restrict output to min/max
 	if (output > outMax) output = outMax;
 	if (output < outMin) output = outMin;
 
-
-	//debug->printf("*mySetpoint: %f input: %f error: %f output: %f Ta: %f PTerm: %f ITerm: %f DTerm: %f\r\n",*mySetpoint, input, error, output,Ta,(kp * (error - error1)) , (ki * Ta * error)),(kd / Ta * (input - 2 * input1 + input2));
+	if (flagShowPID) {
+		errorHandler.setInfoNoLog(F("!03,sp: %f in: %f err: %f out: %f Ta: %f PTerm: %f ITerm: %f DTerm: %f\r\n"),*mySetpoint, input, error, output, Ta, pterm, iterm, dterm);
+	}
 
 	// save variable for next time
 	input2 = input1;
@@ -503,6 +506,7 @@ int PIDVEL::GetDirection()
 {
 	return controllerDirection;
 }
+
 
 
 

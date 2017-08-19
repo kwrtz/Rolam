@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -20,33 +20,33 @@ Private-use only! (you need to ask for a commercial-use)
 
 #include <math.h>
 #include "closedloopcontrol.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "errorhandler.h"
 #include "tables.h"
-
-
-//#define DRIVEMOTOR_TEST 1   // use this to activate test routines in the bottem of this script
-
-
 
 
 
 void TClosedLoopControlThread::setup(uint8_t motorNumber, CRotaryEncoder  *enc)    // Motor 1 oder 2
 {
 
-	lasttTimeEncoderRead = 0;
-	lasttTimeSpeedShown = 0;
+	lastTimeEncoderRead = 0;
+	lastTimeSpeedShown = 0;
 
-	Setpoint = 0.0f;
-	current_speed = 0.0f;
-
+	setpointRPM = 0.0f;
+	current_speedRPM = 0.0f;
 	Output = 0.0f; //
+	feedforwardRPM = 0.0f;
+
 	flagShowSpeed = false;
+	flagShowEncoder = false;
+	flagMotorStepSpeed = false;
+	flagMotorFSB = false;
+	flagControldirect = false;
 
-	enableDefaultRamping();
+	lastrunTest = 0;
 
-	sollSpeed = 0; // Soll speed wird von setSpeed gesetzt und somit vom user gesetzt
+	sollSpeedRPM = 0; // Soll speed wird von setSpeed gesetzt und somit vom user gesetzt
 				   // Motordriver initialisieren
 				   //SerDueMot.begin(19200);
 				   //motordriver.autobaud();
@@ -54,8 +54,9 @@ void TClosedLoopControlThread::setup(uint8_t motorNumber, CRotaryEncoder  *enc) 
 				   // Welcher motor wird am Sabertooth angesteuert 1 oder 2
 	motorNo = motorNumber;
 	myEncoder = enc;
-
-	myPID.setup(&current_speed, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+													   //Kp, Ki, Kd Will be set in enableDefaultRamping();
+	myPID.setup(&current_speedRPM, &Output, &setpointRPM, 0, 0, 0, DIRECT);
+	enableDefaultRamping();
 	myPID.SetOutputLimits(-127, 127);
 	myPID.SetMode(AUTOMATIC);
 
@@ -64,63 +65,125 @@ void TClosedLoopControlThread::setup(uint8_t motorNumber, CRotaryEncoder  *enc) 
 	SetState(STM_STOP);
 }
 
+void TClosedLoopControlThread::enableDefaultRamping()
+{
+	//debug->printf("enableDefaultRamping()\r\n" );
+	myPID.SetTunings(2,3,0);
+	useRamp = true;
+	rampAccRPM = 1.7; // Konstante fÃ¼r beschleunigung
+	rampDecRPM = 1.7; //Konstante fÃ¼r langsamer werden
+	deadbandRPM = 2;
+	setOutputZeroAtRPm = 3;
+	stopThresholeAtRpm = 1;
+}
 
+void TClosedLoopControlThread::enablePerTrackRamping()
+{
+	//useRamp = false;
+	//debug->printf("enablePerTrackRamping()\r\n" );
+	myPID.SetTunings(2, 3, 0);
+	useRamp = true;
+	rampAccRPM = 4; // Konstante fÃ¼r beschleunigung
+	rampDecRPM = 4; //Konstante fÃ¼r langsamer werden
+	deadbandRPM = 2;
+	setOutputZeroAtRPm = 3;
+	stopThresholeAtRpm = 1;
+}
+
+void TClosedLoopControlThread::enableFastStopRamping()
+{
+	//useRamp = false;
+	//debug->printf("enableFastStopRamping()\r\n");
+	myPID.SetTunings(2, 3, 0);
+	useRamp = true;
+	rampAccRPM = 10;// Konstante fÃ¼r beschleunigung
+	rampDecRPM = 10;//Konstante fÃ¼r langsamer werden
+	deadbandRPM = 2;
+	setOutputZeroAtRPm = 3;
+	stopThresholeAtRpm = 1;
+}
 /*********************************************************/
-// Motor FSM ausführen
+// Motor FSM ausfÃ¼hren
 /*********************************************************/
 void TClosedLoopControlThread::run()
 {
-	// Wird alle 20ms aufgerufen
+	// Wird alle 100ms aufgerufen
 	runned();
+
+	// Test functions start
+	if (flagShowEncoder) {
+		showEncoder();
+	}
+
+	if (flagControldirect) {
+		return;
+	} 
+	else if (flagMotorStepSpeed) {
+		motorStepSpeed();
+	}
+	else if (flagMotorFSB) {
+		testForwardStopBackward();
+	}
+	// Test functions end
+
 	readEncoder();
-//	LoopFSM();
+	LoopFSM();
 }
 
 /*********************************************************/
-// Motor Zustände Do State
+// Motor ZustÃ¤nde Do State
 /*********************************************************/
 void TClosedLoopControlThread::UpdateState(EMotorState t)
 {
-	switch (t) {
 
+	switch (t) {
 
 	case STM_RUN:
 		//debug.serial.println("STM_RUN\r\n");
-		rampSetpoint(sollSpeed);
+		rampSetpoint(sollSpeedRPM);
 		myPID.Compute();
-		//debug->printf("Setpoint: %f Output: %f\r\n", Setpoint, Output);
+		feedforwardRPM = setpointRPM * 100.0 / GETTF(TF_MAX_WHEEL_RPM);  // feed forward should be lower than the needed output. therefore *90 instead of *127 which is maximum speed
 
-		// Agilität verbessern
-		if (sollSpeed>0) {
+		// AgilitÃ¤t verbessern
+/*
+		 if (sollSpeedRPM>0) {
 			if (fabs(Output)<7) {
 				Output = 7;
 			}
 		}
-		else if (sollSpeed<0) {
+		else if (sollSpeedRPM<0) {
 			if (fabs(Output)<7) {
 				Output = -7;
 			}
 		}
-		else if (sollSpeed == 0) {
-			if (fabs(Output)<15) {
+*/
+		if (fabs(sollSpeedRPM) < 0.0001) {
+			if (fabs(current_speedRPM) < setOutputZeroAtRPm) {
 				Output = 0;
+				feedforwardRPM = 0;
 			}
 		}
 
-		motordriver.motor(motorNo, Output);
+		motorDriver.motor(motorNo, feedforwardRPM + Output);
+
+		if (flagShowSpeed) {
+			errorHandler.setInfoNoLog(F("sp: %f ff: %f out: %f ff+out: %f\r\n"), setpointRPM, feedforwardRPM, Output, feedforwardRPM + Output);
+
+   	   }
 
 		// When motor stalls, Sabertooth handle this situatin and current.
 		// I only have here to realize that the robot is not driving.
 		// Check motorstall alle 5 Sekunden. Dann sollten sich Encoder auf jeden Fall bewegt haben.
-		if (millis() - timeLastCheckMotorStall > 5000) {
+/*		if (millis() - timeLastCheckMotorStall > 5000) {
 			timeLastCheckMotorStall = millis();
 			unsigned long buff = myEncoder->getAbsTicksCounter();
-			if ((buff - lastAbsTickCounter) < 100) {  // Ca. 16° Radbewegung
+			if ((buff - lastAbsTickCounter) < 100) {  // Ca. 16Â° Radbewegung
 				errorHandler.setError(F("clc STM_RUN  Motor Stall\r\n"));
-				motordriver.motor(motorNo, 0);
+				motorDriver.motor(motorNo, 0);
 			}
 			lastAbsTickCounter = buff;
 		}
+		*/
 
 		break;
 
@@ -128,22 +191,30 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 	case STM_STOP_REQUEST:
 		//debug.serial.println("STM_STOP_REQUEST");
 		rampSetpoint(0);
+		feedforwardRPM = setpointRPM * 100 / GETTF(TF_MAX_WHEEL_RPM);
 		myPID.Compute();
-		//debug->printf("SetpointStopR: %f Output: %f  fabsOutput: %f\r\n", Setpoint, Output, fabs(Output));
-		motordriver.motor(motorNo, Output);
+		//debug->printf("SetpointStopR: %f Output: %f  fabsOutput: %f\r\n", setpointRPM, Output, fabs(Output));
+		motorDriver.motor(motorNo, feedforwardRPM + Output);
 
+		if (flagShowSpeed) {
+			errorHandler.setInfoNoLog(F("sp: %f ff: %f out: %f ff+out: %f\r\n"), setpointRPM, feedforwardRPM, Output, feedforwardRPM + Output);
+		}
 
-		if (fabs(Output) < 15) { //Bei Output 15 schon stop damit robbi nicht zu träge ist
-								 //debug->printf("SetpointStop<1: %f Output: %f\r\n", Setpoint, Output);
-			motordriver.motor(motorNo, 0);
+		if (fabs(current_speedRPM) < setOutputZeroAtRPm) { //Bei 4RPM schon stop damit robbi nicht zu trÃ¤ge ist
+								 //debug->printf("SetpointStop<1: %f Output: %f\r\n", setpointRPM, Output);
+			motorDriver.motor(motorNo, 0);
 			SetState(STM_STOP_ROLLOUT);
 		}
 		break;
 
 	case STM_STOP_ROLLOUT:
 		//debug.serial.println("STM_STOP_ROLLOUT");
-		motordriver.motor(motorNo, 0);
-		if (fabs(current_speed) < 100) { // Wait until motor stopped. Bei 100ticks/s schon OK damit robbi nicht zu träge ist aber immer noch sanft abbremst
+		motorDriver.motor(motorNo, 0);
+		if (flagShowSpeed) {
+			errorHandler.setInfoNoLog(F("sp: %f ff: %f out: %f ff+out: %f\r\n"), setpointRPM, 0.0, 0.0, 0.0);
+		}
+
+		if (fabs(current_speedRPM) < stopThresholeAtRpm) { // Wait until motor stopped. Bei 1 Umdrehungen/minute schon OK damit robbi nicht zu trÃ¤ge ist aber immer noch sanft abbremst
 			SetState(STM_STOP);
 		}
 
@@ -151,7 +222,11 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 
 	case STM_STOP:
 		//debug.serial.println("STM_STOP");
-		motordriver.motor(motorNo, 0);
+		motorDriver.motor(motorNo, 0);
+		if (flagShowSpeed) {
+			errorHandler.setInfoNoLog(F("sp: %f ff: %f out: %f ff+out: %f\r\n"), setpointRPM, 0.0, 0.0, 0.0);
+		}
+
 		break;
 
 	default:
@@ -162,7 +237,7 @@ void TClosedLoopControlThread::UpdateState(EMotorState t)
 };
 
 /*********************************************************/
-// Motor Zustände Entry State
+// Motor ZustÃ¤nde Entry State
 /*********************************************************/
 void TClosedLoopControlThread::BeginState(EMotorState t)
 {
@@ -173,7 +248,7 @@ void TClosedLoopControlThread::BeginState(EMotorState t)
 		lastTickCounter = myEncoder->getTickCounter();
 		lastAbsTickCounter = myEncoder->getAbsTicksCounter();
 		//myEncoder->resetTickCounter();
-		lasttTimeEncoderRead = millis();
+		lastTimeEncoderRead = millis();
 		timeLastCheckMotorStall = millis();
 		break;
 
@@ -186,7 +261,7 @@ void TClosedLoopControlThread::BeginState(EMotorState t)
 };
 
 /*********************************************************/
-// Motor Zustände Exit State
+// Motor ZustÃ¤nde Exit State
 /*********************************************************/
 void TClosedLoopControlThread::EndState(EMotorState t)
 {
@@ -195,13 +270,13 @@ void TClosedLoopControlThread::EndState(EMotorState t)
 	case STM_STOP_REQUEST:
 		//debug->puts("STM_STOP_REQUEST EndState\r\n");
 		Output = 0;
-		Setpoint = 0;
+		setpointRPM = 0;
 		break;
 
 	case STM_STOP:
 		//debug->puts("STM_STOP EndState\r\n");
 		Output = 0;
-		Setpoint = 0;
+		setpointRPM = 0;
 		myPID.Initialize();
 		lastTickCounter = myEncoder->getTickCounter();
 		//myEncoder->resetTickCounter();
@@ -214,41 +289,23 @@ void TClosedLoopControlThread::EndState(EMotorState t)
 };
 
 // ---------------------------------------------------------
-// speed is -100% to +100%. This function calculates the ticks pro sek for the given percentage.
+// speed is -100% to +100%. This function calculates rpm for the given percentage.
 // ---------------------------------------------------------
-void TClosedLoopControlThread::setSpeed(long  speed)
+void TClosedLoopControlThread::setSpeed(long  speedPercentage)
 {
-	long y;
-	y = 0;
-	if (speed != 0) {
-		y = mapl(speed, -100, 100, -1 * GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED), GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED));
+	if (speedPercentage > 100){
+		speedPercentage = 100;
 	}
-
-	sollSpeed = y;
+	else if(speedPercentage < -100){
+		speedPercentage = -100;
+	}
+	sollSpeedRPM = (GETTF(TF_MAX_WHEEL_RPM) * (double)speedPercentage) / 100.0;
 
 	if (GetState() != STM_RUN) {
 		SetState(STM_RUN);
 	}
 }
 
-// ---------------------------------------------------------
-// speed in ticks per seconds. used by position control
-// ---------------------------------------------------------
-void TClosedLoopControlThread::setSpeedTPS(long  speed)
-{
-
-	if (speed < -1 * GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED)) {
-		speed = -1 * GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED);
-	}
-	else if (speed > GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED)) {
-		speed = GETTF(TF_MAX_ENCTICKS_PER_SEC_AT_FULL_SPEED);
-	}
-
-	sollSpeed = speed;
-
-	if (GetState() != STM_RUN)
-		SetState(STM_RUN);
-}
 
 
 // Calculate current speed
@@ -257,38 +314,34 @@ void TClosedLoopControlThread::readEncoder()
 	long encTickCounter, buff;
 	unsigned long nowTime;
 
-	// Werte aus Encoder holen und encoder wieder auf 0 setzen
+	// Delta Encoder ermitteln
 	buff = myEncoder->getTickCounter();
 	encTickCounter = buff - lastTickCounter;
 	lastTickCounter = buff;
-	//myEncoder->resetTickCounter();
 
+	// Delta Time ermitteln 
 	nowTime = millis();
-	unsigned long delta = nowTime - lasttTimeEncoderRead;
-	double deltaTime = delta;//time between most recent encoder ticks
+	unsigned long delta = nowTime - lastTimeEncoderRead;
+	lastTimeEncoderRead = nowTime;
+	double deltaTimeSec = (double)delta/1000.0;//time between most recent encoder ticks
+	double ticksPerRevolution = GETTF(TF_ENCTICKSPERROTATION);
 
 	if (delta != 0) {
-		//current_speed = encTickCounter * 1000.0f / deltaTime; // current_speed in ticks pro sekunde
-		current_speed = 0.625f * current_speed + 0.375f * (encTickCounter * 1000.0f / deltaTime);   // current_speed in ticks pro sekunde
+		current_speedRPM = 60.0 * ( (double)encTickCounter / ticksPerRevolution) / deltaTimeSec;
 	}
-
-	lasttTimeEncoderRead = nowTime;
-	// TICKSPERM
 
 
 	//debug->printf("deltaTicks: %d\r\n", encTickCounter);
 
 
-	current_speed_mph = (current_speed * 3600 * GETTF(TF_RADUMFANG_CM)) / (100.0f * GETTF(TF_ENCTICKSPERROTATION));  // current_speed in m pro h
+	current_speed_mph = current_speedRPM * 60.0 * GETTF(TF_RADUMFANG_CM) / 100.0;  // current_speed in m pro h
 
 																													 //flagShowSpeed= true;
 	if (flagShowSpeed) {
-		//current_speed_mph =  current_speed  * 3600  /   (100.0f * GETTF(TF_ENCTICKSPERROTATION) / GETTF(TF_RADUMFANG_CM));  // current_speed in m pro h
-		if (millis() - lasttTimeSpeedShown > 1000) {
-			lasttTimeSpeedShown = millis();
-			sprintf(errorHandler.msg, "!03,motor %i c/s: %f  m/h: %f deltaTicks: %lu deltaTime: %lu Setpoint: %f Output: %f\r\n", motorNo, current_speed, current_speed_mph, encTickCounter, delta, Setpoint, Output);
-			errorHandler.setInfo();
-		}
+		//if (millis() - lastTimeSpeedShown > 200) {
+			lastTimeSpeedShown = millis();
+			errorHandler.setInfoNoLog(F("!03,motor %i rpm: %f  m/h: %f deltaTicks: %lu deltaTime: %lu "), motorNo, current_speedRPM, current_speed_mph, encTickCounter, delta);
+		//}
 	}
 
 
@@ -296,39 +349,6 @@ void TClosedLoopControlThread::readEncoder()
 
 
 
-void TClosedLoopControlThread::enableDefaultRamping()
-{
-	//debug->printf("enableDefaultRamping()\r\n" );
-	useRamp = true;
-	Kp = 0.2f;
-	Ki = 0.5f;
-	Kd = 0.0f;
-	acceleration = 16;// Konstante für beschleunigung
-	deceleration = 16;//Konstante für langsamer werden
-}
-void TClosedLoopControlThread::enablePerTrackRamping()
-{
-	//useRamp = false;
-	//debug->printf("enablePerTrackRamping()\r\n" );
-	useRamp = true;
-	Kp = 0.2f;
-	Ki = 0.5f;
-	Kd = 0.0f;
-	acceleration = 40;// Konstante für beschleunigung
-	deceleration = 40;//Konstante für langsamer werden
-}
-
-void TClosedLoopControlThread::enableFastStopRamping()
-{
-	//useRamp = false;
-	//debug->printf("enableFastStopRamping()\r\n");
-	useRamp = true;
-	Kp = 0.2f;
-	Ki = 0.5f;
-	Kd = 0.0f;
-	acceleration = 125;// Konstante für beschleunigung
-	deceleration = 125;//Konstante für langsamer werden
-}
 
 
 /*+ ---------------------------------------------------------
@@ -336,57 +356,57 @@ Called at the loop rate to add "velocity" to the set point thus
 effecting a motion.
 Velocity is ramped up and down by "acceleration/deceleration"
 -*/
-void TClosedLoopControlThread::rampSetpoint(double  _sollSpeed)
+void TClosedLoopControlThread::rampSetpoint(double  _sollSpeedRPM)
 {
 	if (useRamp) {
 
-		if (Setpoint < _sollSpeed) {
-			Setpoint += acceleration;
+		if (setpointRPM < _sollSpeedRPM) {
+			setpointRPM += rampAccRPM;
 
-			if (_sollSpeed > 0 && Setpoint > 0 && Setpoint < 20) { // Wenn von speed 0 gestartet wird Setpoint bei 20ticks/s starten um weniger träge zu sein. Speed von 5% =  _sollspeed: 57.000000
-				Setpoint = 20;
-				//debug->puts("Setpoint = 20;\r\n");
+			if (_sollSpeedRPM > 0 && setpointRPM > 0 && setpointRPM < deadbandRPM) { // Wenn von speed 0 gestartet wird setpointRPM bei deadbandRPM gestartet um weniger trÃ¤ge zu sein. Speed von 5% =  _sollspeed: 57.000000
+				setpointRPM = deadbandRPM;
+				//debug->puts("setpointRPM = 20;\r\n");
 			}
-			if (Setpoint > _sollSpeed) {
-				Setpoint = _sollSpeed;
+			if (setpointRPM > _sollSpeedRPM) {
+				setpointRPM = _sollSpeedRPM;
 			}
 
 		}
-		else if (Setpoint > _sollSpeed) {
-			Setpoint -= deceleration;
-			if (_sollSpeed < 0 && Setpoint < 0 && Setpoint > -20) { // Wenn von speed 0 gestartet wird Setpoint bei -20 anfangen
-																	//debug->printf("Setpoint %f, _sollspeed: %f\r\n", Setpoint, _sollSpeed);
-				Setpoint = -20;
-				//debug->puts("Setpoint = -20;\r\n");
+		else if (setpointRPM > _sollSpeedRPM) {
+			setpointRPM -= rampDecRPM;
+			if (_sollSpeedRPM < 0 && setpointRPM < 0 && setpointRPM > (-deadbandRPM)) { // Wenn von speed 0 gestartet wird setpointRPM bei -20 anfangen
+																	//debug->printf("setpointRPM %f, _sollspeed: %f\r\n", setpointRPM, _sollSpeed);
+				setpointRPM = (-deadbandRPM);
+				//debug->puts("setpointRPM = -20;\r\n");
 			}
-			if (Setpoint < _sollSpeed) {
-				Setpoint = _sollSpeed;
+			if (setpointRPM < _sollSpeedRPM) {
+				setpointRPM = _sollSpeedRPM;
 			}
 
 		}
 
 	}//  if(useRamp) {
 	else {
-		Setpoint = _sollSpeed;
+		setpointRPM = _sollSpeedRPM;
 	}
-	//debug << "_rampSetpoint( _sollSpeed)" << " _sollSpeed: " << _sollSpeed << "rampedSetpoint:  " << rampedSetpoint << " Setpoint: " << Setpoint << endl;
+	//debug << "_rampSetpoint( _sollSpeed)" << " _sollSpeed: " << _sollSpeed << "rampedSetpoint:  " << rampedSetpoint << " setpointRPM: " << setpointRPM << endl;
 }
 
 
 void TClosedLoopControlThread::hardStop()
 {
-	motordriver.motor(motorNo, 0);
-	sollSpeed = 0;
+	motorDriver.motor(motorNo, 0);
+	sollSpeedRPM = 0;
 	if (GetState() != STM_STOP_ROLLOUT && GetState() != STM_STOP) { // Verhindern, dass falls bereits in STM_STOP dieser nicht wieder in STM_STOP_ROLLOUT gesetzt wird.
 																	// Dann kann es sein, dass bei Aufruf in loop nie in STOP kommmt, da immer STM_STOP_ROLLOUT gesetzt wird.
 		SetState(STM_STOP_ROLLOUT);
-		motordriver.motor(motorNo, 0);
+		motorDriver.motor(motorNo, 0);
 	}
 }
 
 void TClosedLoopControlThread::stop()
 {
-	sollSpeed = 0;
+	sollSpeedRPM = 0;
 
 
 	if (GetState() != STM_STOP_REQUEST && GetState() != STM_STOP_ROLLOUT && GetState() != STM_STOP) { // Verhindern, dass falls bereits in STM_STOP dieser nicht wieder in STM_STOP_REQUEST gesetzt wird.
@@ -419,18 +439,34 @@ void TClosedLoopControlThread::setBaudRate()
 
 void TClosedLoopControlThread::controlDirect(int speed)
 {
+	// Will only work if run is not called 
 
 	if (speed < -127) speed = -127;
 	else if (speed > 127) speed = 127;
 
-	motordriver.motor(motorNo, speed);
+	motorDriver.motor(motorNo, speed);
 
 }
 
-/*
 
+void TClosedLoopControlThread::showConfig()
+{
+	errorHandler.setInfoNoLog(F("!03,CLC Config MotorNo: %i\r\n"), motorNo);
+	errorHandler.setInfoNoLog(F("!03,interval: %lu\r\n"), interval);
+	errorHandler.setInfoNoLog(F("!03,KP: %f KI: %f  KD: %f\r\n"), myPID.GetKp(), myPID.GetKi(), myPID.GetKd());
+	errorHandler.setInfoNoLog(F("!03,useRamp %d\r\n"), useRamp);
+	errorHandler.setInfoNoLog(F("!03,rampAccRPM %f\r\n"), rampAccRPM);
+	errorHandler.setInfoNoLog(F("!03,rampDecRPM %f\r\n"), rampDecRPM);
+	errorHandler.setInfoNoLog(F("!03,deadbandRPM %f\r\n"), deadbandRPM);
+	errorHandler.setInfoNoLog(F("!03,setOutputZeroAtRPm %f\r\n"), setOutputZeroAtRPm);
+	errorHandler.setInfoNoLog(F("!03,stopThresholeAtRpm %f\r\n"), stopThresholeAtRpm);
+	errorHandler.setInfoNoLog(F("!03,speedMinTest %f\r\n"), speedMinTest);
+	errorHandler.setInfoNoLog(F("!03,speedMaxTest %f\r\n"), speedMaxTest);
+}
+
+/*
 // FFarray is the array of expected motor velocities (units: sensorValue per second) that correspond with the duty cycle in increments of 20
-static double FFarray[11] = { -228, -182, -136, -91, -46, 0, 46, 91, 136, 182, 228 };
+static double FFarray[11] = { -118, -93, -70, -49, -26, 0, 26, 49, 70, 93, 118 };
 
 // FFdutycycle is the array of duty cycles in increments of 20. This array is constant.
 static int FFdutycycle[11] = { -100,-80, -60,-40,-20, 0,20, 40, 60, 80,100 };
@@ -458,132 +494,105 @@ return -100; // return the minimum duty cycle
 else
 return 0;
 }
-
 */
 
 
 
 
-
-/********************************************************************************************************
-TESTFUNKTIONEN
-Da static variabeln enthalten nur ausführen wenn nur ein Objekt der Klasse TDriveMotor testen!!!
-*******************************************************************************************************/
-
-
-
-
-#ifdef  DRIVEMOTOR_TEST
-
-
-void TClosedLoopControlThread::testEncoder()
+void TClosedLoopControlThread::showEncoder()
 {
-	static unsigned long  nextTime = 0;
-	//   static unsigned long lasttime = 0;
-	unsigned long now = 0;
-	//   static int speed = 0;
 
+	long encTickCounter, buff;
+	unsigned long nowTime;
+	double speedRPM, speed_mph;
 
-	now = millis();
+	// Delta Encoder ermitteln
+	buff = myEncoder->getTickCounter();
+	encTickCounter = buff - lastTickCounterShowEnc;
+	lastTickCounterShowEnc = buff;
 
-	if (now < nextTime) return;
-	nextTime = millis() + 100;  //=Ta
+	// Delta Time ermitteln 
+	nowTime = millis();
+	unsigned long delta = nowTime - lastTimeEncoderReadShowEnc;
+	lastTimeEncoderReadShowEnc = nowTime;
+	double deltaTimeSec = (double)delta / 1000.0;//time between most recent encoder ticks
+	double ticksPerRevolution = GETTF(TF_ENCTICKSPERROTATION);
 
-								//  debug->printf("micro32: %lu millis: %lu\r\n", _microseconds32, now);
-								//debug->printf("millis: %lu\r\n", now);
-
-
-
-	controlDirect(20);
-
-	int encTickCounter = myEncoder->getTickCounter();
-	sprintf(errorHandler.msg, "!03,deltaTicks: %d\r\n", encTickCounter);
-	errorHandler.setInfo();
-
-	/*
-	if (now - lasttime > 1000) {
-	speed++;
-	lasttime = now;
+	if (delta != 0) {
+		speedRPM = 60.0 * ((double)encTickCounter / ticksPerRevolution) / deltaTimeSec;
 	}
-	if (speed > 127) speed = 0;
+	else {
+		speedRPM = -999.99;
+	}
 
-	motordriver.motor(motorNo, speed);
-	Output = speed;
-	*/
+	speed_mph = speedRPM * 60.0 * GETTF(TF_RADUMFANG_CM) / 100.0;  // current_speed in m pro h
 
-	//debug->puts("A\r");
+	errorHandler.setInfoNoLog(F("!03,motor %i absEnc: %ld enc: %lu rpm: %f  m/h: %f deltaTicks: %lu deltaTime: %lu\r\n"), motorNo, myEncoder->getTickCounter(), myEncoder->getAbsTicksCounter(),speedRPM, speed_mph, encTickCounter, delta);
 
 }
 
-
-void TClosedLoopControlThread::testMotors()
+// Used for tuning the PID values
+void TClosedLoopControlThread::motorStepSpeed()
 {
-	int speed;
 
-	// Ramp from -127 to 127 (full reverse to full forward), waiting 20 ms (1/50th of a second) per value.
-	for (speed = -127; speed <= 127; speed++) {
-		motordriver.motor(motorNo, speed);
-		delay(20);
+	if ((millis() - lastrunTest) > 4000) {
+		lastrunTest = millis();
+
+		if (stateTest == 0) {
+			setSpeed(speedMinTest);
+			stateTest = 1;
+		}
+		else {
+			setSpeed(speedMaxTest);
+			stateTest = 0;
+		}
 	}
-
-	// Now go back the way we came.
-	for (speed = 127; speed >= -127; speed--) {
-		motordriver.motor(motorNo, speed);
-		delay(20);
-	}
-
 }
 
 
+
+// Used for tuning the rampAccRPM and values
 void TClosedLoopControlThread::testForwardStopBackward()
 {
 
-	static unsigned long  nextTime = 0;
-	static unsigned long lasttime = 3000;
-	unsigned long now = 0;
-	int state = 0;
-
-	now = millis();
-	if (now < nextTime) return;
-	nextTime = millis() + 100;  //=Ta
-
-	readEncoder();
-	//debug << " now " << now << " lasttime " << lasttime <<  endl;;
+	unsigned long now = millis();
 
 
-	switch (state) {
+	switch (stateTest) {
 	case 0:
 		//forward();
-		if ((now - lasttime) > 3000) {
-			state = 2;
-			lasttime = now;
+		if ((now - lastrunTest) > 4000) {
+			stateTest = 1;
 			stop();
+			errorHandler.setInfoNoLog(F("STOP\r\n"));
 		}
 
 		break;
 
 	case 1:
 		if (isStopped()) {
-			setSpeed(50);
-			backward();
-			state = 2;
+			lastrunTest = now;
+			setSpeed(speedMinTest);
+			stateTest = 2;
+			errorHandler.setInfoNoLog(F("MIN\r\n"));
 		}
 
 		break;
 
 	case 2:
-		if ((now - lasttime) > 3000) {
-			state = 3;
-			lasttime = now;
+		if ((now - lastrunTest) > 4000) {
+			stateTest = 3;
 			stop();
+			errorHandler.setInfoNoLog(F("STOP\r\n"));
 		}
 		break;
 
 	case 3:
 		if (isStopped()) {
-			setSpeed(50);
-			forward();
-			state = 1;
+			lastrunTest = now;
+			setSpeed(speedMaxTest);
+			stateTest = 0;
+			errorHandler.setInfoNoLog(F("MAX\r\n"));
 		}
 		break;
 
@@ -593,68 +602,10 @@ void TClosedLoopControlThread::testForwardStopBackward()
 
 }
 
-void TClosedLoopControlThread::testReadEncoder()
-{
-
-	static unsigned long lasttime = 0;
-	unsigned long now = 0;
-	static int speed = 0;
 
 
-	now = millis();
-
-	if (now - lasttime > 1000) {
-		speed++;
-		lasttime = now;
-	}
-	if (speed > 127) speed = 0;
 
 
-	motordriver.motor(motorNo, speed);
-	debug.print("speed:  ");
-	debug.println(speed);
-
-	// Alle 50ms Encoder aktualisieren
-	static unsigned long  nextTimeMotorControl = 0;
-	if (millis() < nextTimeMotorControl) return;
-	nextTimeMotorControl = millis() + 50;  //=Ta
-
-	readEncoder();
-
-}
-
-void TClosedLoopControlThread::testEncoder()
-{
-
-	static unsigned long lasttime = 0;
-	unsigned long now = 0;
-	static int speed = 0;
-
-
-	now = millis();
-
-	if (now - lasttime > 1000) {
-		speed++;
-		lasttime = now;
-	}
-	if (speed > 127) speed = 0;
-
-	motordriver.motor(motorNo, speed);
-
-	if (myEncoder->interruptExecuted() == true) {
-
-		myEncoder->deleteFlagIntExecuted();
-		debug.print("speed:  ");
-		debug.print(speed);
-		debug.print("   getPulseTime ml:  ");
-		debug.print(myEncoder->getPulseTime());
-		debug.print("   getPosition ml:  ");
-		debug.println(myEncoder->getTickCounter());
-
-	}
-}
-
-#endif
 
 
 

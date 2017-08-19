@@ -51,16 +51,16 @@ void FreeMem(void) {
 	sprintf(Txt, " fordblks = %d\r\n", mi.fordblks);  debug.serial.print(Txt);
 	sprintf(Txt, " keepcost = %d\r\n", mi.keepcost);  debug.serial.println(Txt);
 
-	sprintf(Txt, "RAM Start:    %lx\r\n", (unsigned long)ramstart);  Serial.print(Txt);
-	sprintf(Txt, "Data/Bss end: %lxv\n", (unsigned long)&_end);     Serial.print(Txt);
-	sprintf(Txt, "Heap End:     %lx\r\n", (unsigned long)heapend);   Serial.print(Txt);
-	sprintf(Txt, "Stack Ptr:    %lx\r\n", (unsigned long)stack_ptr); Serial.print(Txt);
-	sprintf(Txt, "RAM End:      %lx\r\n", (unsigned long)ramend);    Serial.println(Txt);
+	sprintf(Txt, "RAM Start:    %lx\r\n", (unsigned long)ramstart);  debug.serial.print(Txt);
+	sprintf(Txt, "Data/Bss end: %lxv\n", (unsigned long)&_end);     debug.serial.print(Txt);
+	sprintf(Txt, "Heap End:     %lx\r\n", (unsigned long)heapend);   debug.serial.print(Txt);
+	sprintf(Txt, "Stack Ptr:    %lx\r\n", (unsigned long)stack_ptr); debug.serial.print(Txt);
+	sprintf(Txt, "RAM End:      %lx\r\n", (unsigned long)ramend);    debug.serial.println(Txt);
 
-	sprintf(Txt, "Heap RAM Used:      %d\r\n", mi.uordblks);                       Serial.print(Txt);
-	sprintf(Txt, "Program RAM Used:   %d\r\n", &_end - ramstart);                  Serial.print(Txt);
-	sprintf(Txt, "Stack RAM Used:     %d\r\n", ramend - stack_ptr);                Serial.print(Txt);
-	sprintf(Txt, "Estimated Free RAM: %d\r\n", stack_ptr - heapend + mi.fordblks); Serial.print(Txt);
+	sprintf(Txt, "Heap RAM Used:      %d\r\n", mi.uordblks);                       debug.serial.print(Txt);
+	sprintf(Txt, "Program RAM Used:   %d\r\n", &_end - ramstart);                  debug.serial.print(Txt);
+	sprintf(Txt, "Stack RAM Used:     %d\r\n", ramend - stack_ptr);                debug.serial.print(Txt);
+	sprintf(Txt, "Estimated Free RAM: %d\r\n", stack_ptr - heapend + mi.fordblks); debug.serial.print(Txt);
 
 	/* add main program code here */
 	uint32_t stackTop;
@@ -74,8 +74,9 @@ void FreeMem(void) {
 	heapTop = (uint32_t)hTop;
 	free(hTop);
 	// The difference is the free, available ram.
-	sprintf(Txt, "Estimated Free RAM2:%lu\r\n", stackTop - heapTop); Serial.print(Txt);
+	sprintf(Txt, "Estimated Free RAM2:%lu\r\n", stackTop - heapTop); debug.serial.print(Txt);
 	char top;
-	sprintf(Txt, "Estimated Free RAM3:%d\r\n", &top - reinterpret_cast<char*>(sbrk(0))); Serial.print(Txt);
+	sprintf(Txt, "Estimated Free RAM3:%d\r\n", &top - reinterpret_cast<char*>(sbrk(0))); debug.serial.print(Txt);
 
 }
+

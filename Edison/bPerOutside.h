@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -47,10 +47,10 @@ typedef struct  {
     long  distanceDriven; // [0] Enthaelt die gerade gefahrene distanz von der letzten rotation bis jetzt. Jedes mal nachdem rotiert wurde, wird distanzmessung neu gestartet.
     enuFlagCoilsOutside   coilFirstOutside; // [0] which coil was first outside jet
     float coilOutDifference; // [0]  Current outside differnce of both coils. When left was out 10cm and right was outside 6cm then lastCoilOutDifference = 4cm
-    float coilOutAngle; // [0] Current meassured Angle of coils to Perimeter 0° Means Both coils parrallel outside. 90° Robot is parrallel to perimeter (not really measureable)
+    float coilOutAngle; // [0] Current meassured Angle of coils to Perimeter 0Â° Means Both coils parrallel outside. 90Â° Robot is parrallel to perimeter (not really measureable)
 
     enuDriveDirection lastRotDirection; // [0]  Enthaelt rotationsrichtung der LETZTEN Drehung.
-    long lastRotAngle; // [0] Enthält angle der LETZTEN Drehungen
+    long lastRotAngle; // [0] EnthÃ¤lt angle der LETZTEN Drehungen
 } THistory;
 
 
@@ -64,7 +64,7 @@ private:
     long randAngle; // calculated angle wich should be rotated
 
     int stateStuck; // State variable for stucking algorithm
-    int stateAngle; //Statevariabel für winkelberechnung
+    int stateAngle; //Statevariabel fÃ¼r winkelberechnung
     int memStateAngle; // Memorize state
 
 
@@ -83,7 +83,7 @@ public:
 
     TRotateWorkx()  {
 
-        // Erstmal so füllen, das bedingungen unten nicht gleich erfüllt sind.
+        // Erstmal so fÃ¼llen, das bedingungen unten nicht gleich erfÃ¼llt sind.
         for(int i=0; i< HISTROY_BUFSIZE; i++) {
             history[i].distanceDriven= 300;
             history[i].lastRotDirection = DD_ROTATECC;
@@ -193,12 +193,12 @@ public:
         addDistanceToHistory(bb.motor.getDistanceInCMForWorkx()); // Driven distance from end of last rotating until now
         addCoilFirstOutsideToHistory(bb.flagCoilFirstOutside);    // which coil was first outside jet
         addCoilOutDifferenceToHistory(bb.motor.getDistanceDiffInCMForCoilOut()); // Measured difference abs(coilL-coilR) of the way, the coils needed to go from outside to inside in cm
-        addCoilOutAngleToHistory(bb.motor.getDistanceAngleCoilOut()); // Meassured Angle of coils to Perimeter 0° Means Both coils parrallel outside. 90° Robot is parrallel to perimeter (not really measureable)
+        addCoilOutAngleToHistory(bb.motor.getDistanceAngleCoilOut()); // Meassured Angle of coils to Perimeter 0Â° Means Both coils parrallel outside. 90Â° Robot is parrallel to perimeter (not really measureable)
 
         // Im Array steht nun an erster Position [0], die letzte gefahrene Distanz, der letzte gedrehte Winkel und die letzte gedrehte Richtung
-        // Sowie die aktuellen Werte für: flagCoilFirstOutside, getDistanceDiffInCMForCoilOut, getDistanceAngleCoilOut
-        // Auf Grundlage dieser Wert müssen nun Entscheidungen getroffen werden. Unten werden dann der neue Winkel und Winkelrichtung eingetragen, beim nächsten Aufruf dieser
-        // Funktion die dazugehörige distanz in [0] oben eingetragen
+        // Sowie die aktuellen Werte fÃ¼r: flagCoilFirstOutside, getDistanceDiffInCMForCoilOut, getDistanceAngleCoilOut
+        // Auf Grundlage dieser Wert mÃ¼ssen nun Entscheidungen getroffen werden. Unten werden dann der neue Winkel und Winkelrichtung eingetragen, beim nÃ¤chsten Aufruf dieser
+        // Funktion die dazugehÃ¶rige distanz in [0] oben eingetragen
 
         printLastDistanceAndDirectionArray() ;
 
@@ -226,19 +226,19 @@ public:
         }
 
         // Standarddrehwinkel festlegen
-        if(stateAngle == 0 || stateAngle == 1) {  // 0 = goßer Winkel, 1 = kleiner Winkel
+        if(stateAngle == 0 || stateAngle == 1) {  // 0 = goÃŸer Winkel, 1 = kleiner Winkel
 
 
-            // Drehwinkel berechnen in Abhängigkeit von dodgeArcSmallCounter
-            if(dodgeArcCounterBig  < numberArcBig  ) { // Großen Winkel rotieren
+            // Drehwinkel berechnen in AbhÃ¤ngigkeit von dodgeArcSmallCounter
+            if(dodgeArcCounterBig  < numberArcBig  ) { // GroÃŸen Winkel rotieren
                 dodgeArcCounterBig++;
 
                 if(angleCounter <3) {
                     if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
-                        randAngle = myRandom(100, 155);  // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 155
+                        randAngle = myRandom(100, 155);  // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 155
                         errorHandler.setInfo("!05,angleCounter B <4 100-155\r\n");
                     } else {
-                        randAngle = myRandom(80, 100); // Wenn eine Spule draußenist, nicht soweit drehen
+                        randAngle = myRandom(80, 100); // Wenn eine Spule drauÃŸenist, nicht soweit drehen
                         errorHandler.setInfo("!05,angleCounter O <4 50-70\r\n");
                     }
 
@@ -251,10 +251,10 @@ public:
                             randAngle  = myRandom(90, 120); // Robbi steht fast im 0 Gradwinkel zur Schleife //Vorher 90/130
                             errorHandler.setInfo("!05,FreeAreaBig 90-120\r\n");
                         } else if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH ) {
-                            randAngle = myRandom(70, 100); // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 115
+                            randAngle = myRandom(70, 100); // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 115
                             errorHandler.setInfo("!05,FreeAreaBig 70-100\r\n");
                         } else {
-                            randAngle = myRandom(50, 70); // Wenn eine Spule draußen  ist, nicht soweit drehen
+                            randAngle = myRandom(50, 70); // Wenn eine Spule drauÃŸen  ist, nicht soweit drehen
                             errorHandler.setInfo("!05,FreeAreaBig 50-70\r\n"); //60 80
                         }
 
@@ -262,10 +262,10 @@ public:
                     } else if(history[0].distanceDriven  > 150 ) { //cm 150
 
                         if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
-                            randAngle = myRandom(70, 100); // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 155
+                            randAngle = myRandom(70, 100); // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 155
                             errorHandler.setInfo("!05,FreeArea 70-100\r\n");
                         } else {
-                            randAngle = myRandom(50, 70); // Wenn eine Spule draußenist, nicht soweit drehen
+                            randAngle = myRandom(50, 70); // Wenn eine Spule drauÃŸenist, nicht soweit drehen
                             errorHandler.setInfo("!05,FreeArea 50-70\r\n");
                         }
 
@@ -275,7 +275,7 @@ public:
                         if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                             randAngle = myRandom(50, 90);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
                         } else {
-                            randAngle = myRandom(40, 60); // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                            randAngle = myRandom(40, 60); // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
                         }
                         errorHandler.setInfo("!05,Korridor\n\r");
                     }
@@ -296,14 +296,14 @@ public:
                 stateAngle = 0;
 
             } else { // Kleinen Winkel rotieren
-                //randAngle = myRandom(50, 60);   // Normaler Drehwinkel für kleinen Winkel 50/60
+                //randAngle = myRandom(50, 60);   // Normaler Drehwinkel fÃ¼r kleinen Winkel 50/60
                 //errorHandler.setInfo("!05,250Area 50-60\r\n");
 
                 if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                     randAngle = myRandom(50, 70);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
                     errorHandler.setInfo("!05,250/1 Area 50-70\r\n");
                 } else {
-                    randAngle = myRandom(30, 50);   // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                    randAngle = myRandom(30, 50);   // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
                     errorHandler.setInfo("!05,250/1 Area 30-50\r\n");
                 }
 
@@ -311,7 +311,7 @@ public:
                 stateAngle = 1;
             }
 
-            // dodgeArcSmallCounter reseten und wieder von vorne mit großem winkel beginnen
+            // dodgeArcSmallCounter reseten und wieder von vorne mit groÃŸem winkel beginnen
             if (dodgeArcCounterSmall  >= numberArcSmall  ) {
                 isArcNotInitialised = true;
             }
@@ -336,14 +336,14 @@ public:
 
 
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
-                randAngle = myRandom(70, 100); // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 155
+                randAngle = myRandom(70, 100); // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 155
             } else {
-                randAngle = myRandom(50, 70); // Wenn eine Spule draußenist, nicht soweit drehen
+                randAngle = myRandom(50, 70); // Wenn eine Spule drauÃŸenist, nicht soweit drehen
             }
             errorHandler.setInfo("!05,Ecke\r\n");
         }
 
-        // Eintrittsbedingung für Korridor                                   Only if big arc      latch function
+        // Eintrittsbedingung fÃ¼r Korridor                                   Only if big arc      latch function
         if( (history[0].distanceDriven < 150 && history[1].distanceDriven < 150  && stateAngle == 0 )  || stateAngle == 10 ) { // history[0].coilFirstOutside != history[1].coilFirstOutside &&
 
             if( stateAngle == 0 || stateAngle ==1) {
@@ -355,14 +355,14 @@ public:
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                 randAngle = myRandom(50, 90);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
             } else {
-                randAngle = myRandom(40, 60); // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                randAngle = myRandom(40, 60); // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
             }
             errorHandler.setInfo("!05,Korridor\n\r");
         }
 
 
         // Test auf  Korridor
-        // Eintrittsbedingung für schmalen Korridor aber nur wenn ober großer Winkel gefahren wird.
+        // Eintrittsbedingung fÃ¼r schmalen Korridor aber nur wenn ober groÃŸer Winkel gefahren wird.
         if( (history[0].distanceDriven < 80 && history[1].distanceDriven < 80  && stateAngle == 0 )) { // history[0].coilFirstOutside != history[1].coilFirstOutside
             if( stateAngle == 0 || stateAngle ==1) {
                 memStateAngle = stateAngle;
@@ -383,7 +383,7 @@ public:
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                 randAngle = myRandom(50, 70);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
             } else {
-                randAngle = myRandom(40, 50);   // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                randAngle = myRandom(40, 50);   // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
             }
             errorHandler.setInfo("!05,Schmaler Korridor 2\n\r");
         }
@@ -465,7 +465,7 @@ public:
 
 
 
-        } else if(  stateStuck == 3) { //Im State 1 wurde CC gedreht und nun ist er auf die gegenüberliegende Seite gefahren aber Korridor ist eng. Daher nach CW drehen - nicht das er wieder in Korridor fährt
+        } else if(  stateStuck == 3) { //Im State 1 wurde CC gedreht und nun ist er auf die gegenÃ¼berliegende Seite gefahren aber Korridor ist eng. Daher nach CW drehen - nicht das er wieder in Korridor fÃ¤hrt
             if(history[0].distanceDriven < 30  &&  bb.flagCoilFirstOutside == CO_LEFT) {
                 randAngle = 50;
                 bb.flagForceRotateDirection = FRD_CW;
@@ -480,7 +480,7 @@ public:
             }
             stateStuck = 0;
 
-        } else if(  stateStuck == 4) { // //Im State 2 wurde CW gedreht und nun ist er auf die gegenüberliegende Seite gefahren aber Korridor ist eng. Daher nach CC drehen  - nicht das er wieder in Korridor fährt
+        } else if(  stateStuck == 4) { // //Im State 2 wurde CW gedreht und nun ist er auf die gegenÃ¼berliegende Seite gefahren aber Korridor ist eng. Daher nach CC drehen  - nicht das er wieder in Korridor fÃ¤hrt
             if(history[0].distanceDriven < 30  &&  bb.flagCoilFirstOutside == CO_RIGHT) {
                 randAngle = 50;
                 bb.flagForceRotateDirection = FRD_CC;
@@ -502,8 +502,8 @@ public:
         * Drehung entprechend random Winkel starten
         **********************/
 
-        // flagForceRotateDirection berücksichtigen
-        // Drehrichtung änderen. Wenn bei rotation über perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
+        // flagForceRotateDirection berÃ¼cksichtigen
+        // Drehrichtung Ã¤nderen. Wenn bei rotation Ã¼ber perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
         // in dieselbe richtung wie  TPerRotateInsideCW, TPerRotateInsideCC gedreht haben, gedreht werden.
 
         if(bb.flagForceRotateDirection == FRD_CW) {
@@ -518,7 +518,7 @@ public:
 
             // When both coils are outside decide where to go on the result of the coil who was first outside last time.
         }
-        if (bb.flagCoilFirstOutside == CO_BOTH) { // Beide Coils waren gleichzeitig draußen
+        if (bb.flagCoilFirstOutside == CO_BOTH) { // Beide Coils waren gleichzeitig drauÃŸen
             if ( history[0].lastRotDirection == DD_ROTATECW ) {
                 bb.motor.turnTo(-1*randAngle,bb.cruiseSpeed);
                 bb.driveDirection =  DD_ROTATECC;
@@ -568,7 +568,7 @@ private:
     long randAngle; // calculated angle wich should be rotated
 
     int stateStuck; // State variable for stucking algorithm
-    int stateAngle; //Statevariabel für winkelberechnung
+    int stateAngle; //Statevariabel fÃ¼r winkelberechnung
     int memStateAngle; // Memorize state
 
 
@@ -587,7 +587,7 @@ public:
 
     TRotate308()  {
 
-        // Erstmal so füllen, das bedingungen unten nicht gleich erfüllt sind.
+        // Erstmal so fÃ¼llen, das bedingungen unten nicht gleich erfÃ¼llt sind.
         for(int i=0; i< HISTROY_BUFSIZE; i++) {
             history[i].distanceDriven= 300;
             history[i].lastRotDirection = DD_ROTATECC;
@@ -697,12 +697,12 @@ public:
         addDistanceToHistory(bb.motor.getDistanceInCMForWorkx()); // Driven distance from end of last rotating until now
         addCoilFirstOutsideToHistory(bb.flagCoilFirstOutside);    // which coil was first outside jet
         addCoilOutDifferenceToHistory(bb.motor.getDistanceDiffInCMForCoilOut()); // Measured difference abs(coilL-coilR) of the way, the coils needed to go from outside to inside in cm
-        addCoilOutAngleToHistory(bb.motor.getDistanceAngleCoilOut()); // Meassured Angle of coils to Perimeter 0° Means Both coils parrallel outside. 90° Robot is parrallel to perimeter (not really measureable)
+        addCoilOutAngleToHistory(bb.motor.getDistanceAngleCoilOut()); // Meassured Angle of coils to Perimeter 0Â° Means Both coils parrallel outside. 90Â° Robot is parrallel to perimeter (not really measureable)
 
         // Im Array steht nun an erster Position [0], die letzte gefahrene Distanz, der letzte gedrehte Winkel und die letzte gedrehte Richtung
-        // Sowie die aktuellen Werte für: flagCoilFirstOutside, getDistanceDiffInCMForCoilOut, getDistanceAngleCoilOut
-        // Auf Grundlage dieser Wert müssen nun Entscheidungen getroffen werden. Unten werden dann der neue Winkel und Winkelrichtung eingetragen, beim nächsten Aufruf dieser
-        // Funktion die dazugehörige distanz in [0] oben eingetragen
+        // Sowie die aktuellen Werte fÃ¼r: flagCoilFirstOutside, getDistanceDiffInCMForCoilOut, getDistanceAngleCoilOut
+        // Auf Grundlage dieser Wert mÃ¼ssen nun Entscheidungen getroffen werden. Unten werden dann der neue Winkel und Winkelrichtung eingetragen, beim nÃ¤chsten Aufruf dieser
+        // Funktion die dazugehÃ¶rige distanz in [0] oben eingetragen
 
         printLastDistanceAndDirectionArray() ;
 
@@ -730,11 +730,11 @@ public:
         }
 
         // Standarddrehwinkel festlegen
-        if(stateAngle == 0 || stateAngle == 1) {  // 0 = goßer Winkel, 1 = kleiner Winkel
+        if(stateAngle == 0 || stateAngle == 1) {  // 0 = goÃŸer Winkel, 1 = kleiner Winkel
 
 
-            // Drehwinkel berechnen in Abhängigkeit von dodgeArcSmallCounter
-            if(dodgeArcCounterBig  < numberArcBig  ) { // Großen Winkel rotieren
+            // Drehwinkel berechnen in AbhÃ¤ngigkeit von dodgeArcSmallCounter
+            if(dodgeArcCounterBig  < numberArcBig  ) { // GroÃŸen Winkel rotieren
                 dodgeArcCounterBig++;
 
                 if(angleCounter <2) {
@@ -761,14 +761,14 @@ public:
 
                 /*
                  if(history[0].distanceDriven > 250 ) {
-                     randAngle = myRandom(90, 155);  // Normaler Drehwinkel für großen Winkel
+                     randAngle = myRandom(90, 155);  // Normaler Drehwinkel fÃ¼r groÃŸen Winkel
                      errorHandler.setInfo("!05,>250/0 Area 90-155\r\n");
-                 } else {  //Wenn weniger als 250m gefahren wurde kleineren Winkel wählen
+                 } else {  //Wenn weniger als 250m gefahren wurde kleineren Winkel wÃ¤hlen
                      if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
-                         randAngle = myRandom(70, 100); // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 155
+                         randAngle = myRandom(70, 100); // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 155
                          errorHandler.setInfo("!05,<250/0 Area 70-100\r\n");
                      } else {
-                         randAngle = myRandom(50, 70); // Wenn eine Spule draußenist, nicht soweit drehen
+                         randAngle = myRandom(50, 70); // Wenn eine Spule drauÃŸenist, nicht soweit drehen
                          errorHandler.setInfo("!05,<250/0 Area 50-70\r\n");
                      }
                  }*/
@@ -776,14 +776,14 @@ public:
                 stateAngle = 0;
 
             } else { // Kleinen Winkel rotieren
-                //randAngle = myRandom(50, 60);   // Normaler Drehwinkel für kleinen Winkel 50/60
+                //randAngle = myRandom(50, 60);   // Normaler Drehwinkel fÃ¼r kleinen Winkel 50/60
                 //errorHandler.setInfo("!05,250Area 50-60\r\n");
 
                 if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                     randAngle = myRandom(50, 70);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
                     errorHandler.setInfo("!05,<50-70\r\n");
                 } else {
-                    randAngle = myRandom(30, 50);   // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                    randAngle = myRandom(30, 50);   // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
                     errorHandler.setInfo("!05,<30-50\r\n");
                 }
 
@@ -791,7 +791,7 @@ public:
                 stateAngle = 1;
             }
 
-            // dodgeArcSmallCounter reseten und wieder von vorne mit großem winkel beginnen
+            // dodgeArcSmallCounter reseten und wieder von vorne mit groÃŸem winkel beginnen
             if (dodgeArcCounterSmall  >= numberArcSmall  ) {
                 isArcNotInitialised = true;
             }
@@ -816,14 +816,14 @@ public:
 
 
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
-                randAngle = myRandom(70, 100); // Wenn beide Spulen draußen sind, kann Drehwinkel größer sein 80 155
+                randAngle = myRandom(70, 100); // Wenn beide Spulen drauÃŸen sind, kann Drehwinkel grÃ¶ÃŸer sein 80 155
             } else {
-                randAngle = myRandom(50, 70); // Wenn eine Spule draußenist, nicht soweit drehen
+                randAngle = myRandom(50, 70); // Wenn eine Spule drauÃŸenist, nicht soweit drehen
             }
             errorHandler.setInfo("!05,Ecke\r\n");
         }
 
-        // Eintrittsbedingung für Korridor                                   Only if big arc      latch function
+        // Eintrittsbedingung fÃ¼r Korridor                                   Only if big arc      latch function
         if( (history[0].distanceDriven < 150 && history[1].distanceDriven < 150  && stateAngle == 0 )  || stateAngle == 10 ) { // history[0].coilFirstOutside != history[1].coilFirstOutside &&
 
             if( stateAngle == 0 || stateAngle ==1) {
@@ -835,14 +835,14 @@ public:
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                 randAngle = myRandom(50, 90);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
             } else {
-                randAngle = myRandom(40, 60); // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                randAngle = myRandom(40, 60); // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
             }
             errorHandler.setInfo("!05,Korridor\n\r");
         }
 
 
         // Test auf  Korridor
-        // Eintrittsbedingung für schmalen Korridor aber nur wenn ober großer Winkel gefahren wird.
+        // Eintrittsbedingung fÃ¼r schmalen Korridor aber nur wenn ober groÃŸer Winkel gefahren wird.
         if( (history[0].distanceDriven < 80 && history[1].distanceDriven < 80  && stateAngle == 0 )) { // history[0].coilFirstOutside != history[1].coilFirstOutside
             if( stateAngle == 0 || stateAngle ==1) {
                 memStateAngle = stateAngle;
@@ -863,7 +863,7 @@ public:
             if(bb.flagCoilOutsideAfterOverrun  == CO_BOTH) {
                 randAngle = myRandom(50, 70);   // Welchen Winkel soll robbi drehen wenn zu oft ein kurzer weg gefahrebn wurde. 50/90
             } else {
-                randAngle = myRandom(40, 50);   // Wenn eine Spule draußen ist, nicht soweit drehen 40/60
+                randAngle = myRandom(40, 50);   // Wenn eine Spule drauÃŸen ist, nicht soweit drehen 40/60
             }
             errorHandler.setInfo("!05,Schmaler Korridor 2\n\r");
         }
@@ -945,7 +945,7 @@ public:
 
 
 
-        } else if(  stateStuck == 3) { //Im State 1 wurde CC gedreht und nun ist er auf die gegenüberliegende Seite gefahren aber Korridor ist eng. Daher nach CW drehen - nicht das er wieder in Korridor fährt
+        } else if(  stateStuck == 3) { //Im State 1 wurde CC gedreht und nun ist er auf die gegenÃ¼berliegende Seite gefahren aber Korridor ist eng. Daher nach CW drehen - nicht das er wieder in Korridor fÃ¤hrt
             if(history[0].distanceDriven < 30  &&  bb.flagCoilFirstOutside == CO_LEFT) {
                 randAngle = 50;
                 bb.flagForceRotateDirection = FRD_CW;
@@ -960,7 +960,7 @@ public:
             }
             stateStuck = 0;
 
-        } else if(  stateStuck == 4) { // //Im State 2 wurde CW gedreht und nun ist er auf die gegenüberliegende Seite gefahren aber Korridor ist eng. Daher nach CC drehen  - nicht das er wieder in Korridor fährt
+        } else if(  stateStuck == 4) { // //Im State 2 wurde CW gedreht und nun ist er auf die gegenÃ¼berliegende Seite gefahren aber Korridor ist eng. Daher nach CC drehen  - nicht das er wieder in Korridor fÃ¤hrt
             if(history[0].distanceDriven < 30  &&  bb.flagCoilFirstOutside == CO_RIGHT) {
                 randAngle = 50;
                 bb.flagForceRotateDirection = FRD_CC;
@@ -982,8 +982,8 @@ public:
         * Drehung entprechend random Winkel starten
         **********************/
 
-        // flagForceRotateDirection berücksichtigen
-        // Drehrichtung änderen. Wenn bei rotation über perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
+        // flagForceRotateDirection berÃ¼cksichtigen
+        // Drehrichtung Ã¤nderen. Wenn bei rotation Ã¼ber perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
         // in dieselbe richtung wie  TPerRotateInsideCW, TPerRotateInsideCC gedreht haben, gedreht werden.
 
         if(bb.flagForceRotateDirection == FRD_CW) {
@@ -998,7 +998,7 @@ public:
 
             // When both coils are outside decide where to go on the result of the coil who was first outside last time.
         }
-        if (bb.flagCoilFirstOutside == CO_BOTH) { // Beide Coils waren gleichzeitig draußen
+        if (bb.flagCoilFirstOutside == CO_BOTH) { // Beide Coils waren gleichzeitig drauÃŸen
             if ( history[0].lastRotDirection == DD_ROTATECW ) {
                 bb.motor.turnTo(-1*randAngle,bb.cruiseSpeed);
                 bb.driveDirection =  DD_ROTATECC;
@@ -1092,16 +1092,16 @@ public:
 //isArcNotInitialised = true;
 //isRotateNotInitialised  = true;
 //}
-        // Drehwinkel berechnen in Abhängigkeit von dodgeArcSmallCounter
-        if(dodgeArcCounterBig  < numberArcBig  ) { // Großen Winkel rotieren
-            randNumber = myRandom(90, 155);  // Normaler Drehwinkel für großen Winkel
+        // Drehwinkel berechnen in AbhÃ¤ngigkeit von dodgeArcSmallCounter
+        if(dodgeArcCounterBig  < numberArcBig  ) { // GroÃŸen Winkel rotieren
+            randNumber = myRandom(90, 155);  // Normaler Drehwinkel fÃ¼r groÃŸen Winkel
             dodgeArcCounterBig++;
         } else { // Kleinen Winkel rotieren wenn dodgeArcSmallCounter>= 15 ist
-            randNumber = myRandom(50, 60);   // Normaler Drehwinkel für kleinen Winkel
+            randNumber = myRandom(50, 60);   // Normaler Drehwinkel fÃ¼r kleinen Winkel
             dodgeArcCounterSmall++;
         }
 
-        // dodgeArcSmallCounter reseten und wieder von vorne mit großem winkel beginnen
+        // dodgeArcSmallCounter reseten und wieder von vorne mit groÃŸem winkel beginnen
         if (dodgeArcCounterSmall  >= numberArcSmall  ) {
             isArcNotInitialised = true;
         }
@@ -1114,7 +1114,7 @@ public:
 
         bb.cruiseSpeed = bb.CRUISE_SPEED_LOW;
 
-        // Drehrichtung änderen. Wenn bei rotation über perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
+        // Drehrichtung Ã¤nderen. Wenn bei rotation Ã¼ber perimeter gefahren wurde und beim befreien TPerRotateInsideCW, TPerRotateInsideCC beendet wurden, muss weiter
         // in dieselbe richtung wie  TPerRotateInsideCW, TPerRotateInsideCC gedreht haben, gedreht werden.
         switch(bb.flagForceRotateDirection) {
             case FRD_CW  :
@@ -1124,7 +1124,7 @@ public:
                 break;
             case FRD_CC  :
                 errorHandler.setInfo("!03,Change Rotation to FRD_CC ;\r\n");
-                // Rotate CW und CC wurde oben neu initialisiert. Es soll hier aber nur CC gedreht werden, daher werte so setzen, dass in unterer if bedingung CW nicht ausgeführt wird.
+                // Rotate CW und CC wurde oben neu initialisiert. Es soll hier aber nur CC gedreht werden, daher werte so setzen, dass in unterer if bedingung CW nicht ausgefÃ¼hrt wird.
                 numberRotateRigth = 99;
                 dodgeDirectionCounterRight = 999;
                 bb.flagForceRotateDirection = FRD_NONE;
@@ -1135,8 +1135,8 @@ public:
 
 
 
-        // Drehrichtung bestimmen in abhängigkeit von dodgeDirectionCounter
-        if (dodgeDirectionCounterRight < numberRotateRigth) { // Anfänglich rechts drehen
+        // Drehrichtung bestimmen in abhÃ¤ngigkeit von dodgeDirectionCounter
+        if (dodgeDirectionCounterRight < numberRotateRigth) { // AnfÃ¤nglich rechts drehen
             bb.motor.turnTo(randNumber,bb.cruiseSpeed);
             bb.driveDirection =  DD_ROTATECW;
             dodgeDirectionCounterRight++;
@@ -1179,3 +1179,4 @@ public:
 
 
 #endif
+

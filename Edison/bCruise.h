@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -56,7 +56,7 @@ public:
 
     virtual void onInitialize(Blackboard& bb) {
 
-        addRadius = 17.0f/GETTF(TF_SPIRAL_SEGMENTS); // Radius that should be increased in one round divided by 16 because every 22° the speed and cm will calculated new. I chose 35.5/2=17 in because the cutter disc should overlap each round.
+        addRadius = 17.0f/GETTF(TF_SPIRAL_SEGMENTS); // Radius that should be increased in one round divided by 16 because every 22Â° the speed and cm will calculated new. I chose 35.5/2=17 in because the cutter disc should overlap each round.
 
         radius = GETTF(TF_START_SPIRAL_RADIUS_CM); //22.0f; // Start with bigger radius in order not to stall the inner wheel 35.5
 
@@ -403,3 +403,4 @@ public:
 
 
 #endif
+

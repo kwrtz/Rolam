@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -27,36 +27,37 @@ Private-use only! (you need to ask for a commercial-use)
 	#include "WProgram.h"
 #endif
 
-#include "DigitalInOut.h"
+#include "InOutInterface.h"
 #include "BufferSerial.h"
 #include "CRotaryEncoder.h"
+#include "MC33926.h"
 #include "Sabertooth.h"
+#include "errorhandler.h"
+
 //#include "SRF08.h"
 
+
+extern BufferSerial pc;
+extern BufferSerial bt;
 
 extern BufferSerial &debug;
 extern BufferSerial &perRX;
 //extern BufferSerial &sabertoothTX;
 
-
-extern Sabertooth motordriver;
-extern Sabertooth mowMotorDriver;
-
 //extern SRF08 rangeMod1;
 
 extern AnalogIn aiBATVOLT;
-extern AnalogIn aiMOWMOTCURRENT;
 
 extern AnalogIn aiCHARGEVOLTAGE;
 extern AnalogIn aiCHARGECURRENT;
 
 extern DigitalOut doChargeEnable;
+extern DigitalOut doBatteryOffSwitch;
 
 
 extern AnalogIn aiRandomIn;
 
-extern CRotaryEncoder encoderL;
-extern CRotaryEncoder encoderR;
+
 
 
 extern DigitalOut doMyLED;
@@ -65,7 +66,50 @@ extern DigitalOut doMyLED;
 //extern DigitalIn diBumperR;
 extern AnalogIn aiBumper;
 
+
+
+// left wheel motor
+extern DigitalOut doMotorEnable;
+extern PwmOut     pwmMotorLeft;
+extern DigitalOut doMotorLeftDir;
+extern AnalogIn   aiMotorLeftCurrent;
+extern DigitalIn  diMotorLeftFault;
+
+// right wheel motor
+extern PwmOut     pwmMotorRight;
+extern DigitalOut doMotorRightDir;
+extern AnalogIn   aiMotorRightCurrent;
+extern DigitalIn  diMotorRightFault;
+
+// mower motor
+extern DigitalOut doMotorMowEnable;
+extern PwmOut     pwmMotorMowPWM;
+extern DigitalOut doMotorMowDir;
+extern AnalogIn   aiMotorMowCurrent;
+extern DigitalIn  diMotorMowFault;
+
+// odometry
+extern DigitalIn diEncLA;
+//DigitalIn diEncLB(ENCODERLEFT_B_Pin, true);
+extern DigitalIn diEncRA;
+//DigitalIn diEncRB(ENCODERRIGTH_B_Pin, true);
+
+extern CRotaryEncoder encoderL;
+extern CRotaryEncoder encoderR;
+
+extern MC33926Wheels motorDriver;
+extern MC33926Mow mowMotorDriver;
+
+//extern Sabertooth motordriver;
+//extern Sabertooth mowMotorDriver;
+
+extern i2cInOut i2cRTC;
+extern i2cInOut i2cEEPROM;
+
+
+extern void hardwareRun();
 extern void hardwareSetup();
 
 #endif
+
 

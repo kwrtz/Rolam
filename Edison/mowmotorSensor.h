@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -28,7 +28,7 @@ Private-use only! (you need to ask for a commercial-use)
 #endif
 
 #include "Thread.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 #include "batterySensor.h"
 #include "errorhandler.h"
@@ -39,7 +39,7 @@ extern TErrorHandler errorHandler;
 extern TMowClosedLoopControlThread clcM;
 
 // Liest MowMotorstrom aus und berechnet die Wattzahl
-// Wenn diese zu hoch ist, wird der Mähmotor sofort ausgeschaltet.
+// Wenn diese zu hoch ist, wird der MÃ¤hmotor sofort ausgeschaltet.
 
 class TMowMotorSensor : public Thread
 {
@@ -70,7 +70,7 @@ public:
         motorUnderHeavyLoad = false;
         //timeUnderHeavyLoad = 0;
        measureOffset(); 
-       sensorValue = aiMOWMOTCURRENT.read() - offset; // Converts and read the analog input value (value from 0.0 to 1.0)
+       sensorValue = aiMotorMowCurrent.read() - offset; // Converts and read the analog input value (value from 0.0 to 1.0)
 
       
     }
@@ -80,7 +80,7 @@ public:
         // Wird alle 198ms aufgerufen
         runned();
 
-        sensorValue = aiMOWMOTCURRENT.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
+        sensorValue = aiMotorMowCurrent.read(); // Converts and read the analog input value (value from 0.0 to 1.0)
         sensorValue = fabs(sensorValue - offset);
         float sensorCurrent = sensorValue * 60.0f;
 
@@ -106,7 +106,7 @@ public:
 
         if (watt >= motorMowPowerMax) {
             motorMowSenseCounter++;
-            if(motorMowSenseCounter >35){ // Überlauf verhindern
+            if(motorMowSenseCounter >35){ // Ãœberlauf verhindern
                 motorMowSenseCounter = 35;
             }    
         } else {
@@ -156,7 +156,7 @@ public:
         RunningMedian<float,16> myMedian;
         
         for (unsigned int i=0; i < myMedian.getSize(); i++) {
-            float m = aiMOWMOTCURRENT.read();
+            float m = aiMotorMowCurrent.read();
             myMedian.add( m );
 			delay(50);
         }
@@ -167,3 +167,4 @@ public:
 };
 
 #endif
+

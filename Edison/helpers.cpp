@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Private-use only! (you need to ask for a commercial-use)
 */
 
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 
 
@@ -78,7 +78,7 @@ long myRandom(long min, long max)
 
 		for (counter = 0; counter < 32; counter++) {
 			seedValue = seedValue << 1;
-			value = aiRandomIn.read_u16(); // reads a 12 bit ADC normalised to 16 bits. Max=FFFF Min>10
+			value = (uint16_t)aiRandomIn.read_int32(); // reads a 12 bit ADC normalised to 16 bits. Max=FFFF Min>10
 										   //debug->printf("randomAnalogIn: %2X\r\n",value);
 			//debug.serial.print("randomAnalogIn: ");
 			//debug.serial.println(value);
@@ -107,6 +107,7 @@ long myRandom(long min, long max)
 	return static_cast<long>(rand() * fraction * (max - min + 1) + min);
 	*/
 }
+
 
 
 

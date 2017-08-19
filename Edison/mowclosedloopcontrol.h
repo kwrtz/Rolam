@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -24,7 +24,7 @@ Private-use only! (you need to ask for a commercial-use)
 #include <inttypes.h>
 #include "Thread.h"
 #include "PID_v2.h"
-#include "global.h"
+#include "helpers.h"
 #include "Sabertooth.h"
 
 
@@ -48,12 +48,14 @@ public:
 
 	bool motorDisabled; // Wird von mowmotorSensor gesetzt wenn Strom zu hoch.
 	bool uiMotorDisabled; // User stopped Motor 
+	bool flagShowSpeed;
 
-	int speedCurr;
+	float speedCurr;
 	int motorMowAccel;
+	float speedLimit;
 
 	void forward();
-	void backward();
+	void backward(); 
 	void stop();
 	bool isStopped();
 	bool isRunning();
@@ -62,13 +64,11 @@ public:
 	// Called at the loop rate 100ms to run the state machine and therfore the motor
 	virtual void run();
 
-	// Sabertooth Befehle
-	void setRamp();
-	void setBaudRate();
-
 	void controlDirect(int speed);
+	void showConfig();
 };
 
 
 #endif
+
 

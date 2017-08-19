@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -21,7 +21,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 #ifndef PERIMETER_H
 #define PERIMETER_H
-// Empfängt die Perimeterdaten über die SerDueMot read Schnittstelle vom due.
+// EmpfÃ¤ngt die Perimeterdaten Ã¼ber die SerDueMot read Schnittstelle vom due.
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
@@ -31,7 +31,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 //#include "BufferedSerial.h"
 #include "Thread.h"
-#include "global.h"
+#include "helpers.h"
 
 enum EPerSignal {
     SIGNAL_INSIDE = -1, // optional, -1 is the initial state of the fsm
@@ -81,11 +81,11 @@ private:
     uint8_t header1, header2;
     uint8_t checksumm;
     uint8_t checksummcalculated;
-    // Werte hier negative für inside
+    // Werte hier negative fÃ¼r inside
     uInt16 _magnetudeL;
     uInt16 _magnetudeR;
     uInt16 _magnetudeB;
-    // Werte hier positiv für inside
+    // Werte hier positiv fÃ¼r inside
     void CaluculateInsideOutside( int16_t magl, int16_t magr,  int16_t magb);
     void CaluculateArcToPerimeter();
 
@@ -96,13 +96,13 @@ public:
     // Empfangsdaten von Perimetersensoren Links und Rechts
     //-----------------------------------------------------
 
-    //  Achtung, vor dem Verwenden  der Daten erstmal prüfen ob neueDatenEmpfangen == true ist. Wenn Daten verarbeitet wurden, neueDatenEmpfangen=false setzen.
+    //  Achtung, vor dem Verwenden  der Daten erstmal prÃ¼fen ob neueDatenEmpfangen == true ist. Wenn Daten verarbeitet wurden, neueDatenEmpfangen=false setzen.
     // Funktioniert nicht, wenn mehrer Prozesse gleichzeitig auf die Daten zugreifen
     //  checksumError gibt an, ob die empfangenen Daten richtig sind oder fehlerhaft. Die Daten werden in die Variablen eingetragen, neueDatenEmpfangen wird aber auf false gesetzt.
-    //  seriellesSignalHeaderError gibt an, dass Daten auf der Seriellen Leitung emfangen wurden, aber der Header nicht gefunden wurde. Variablen Daten werden nicht verändert.
+    //  seriellesSignalHeaderError gibt an, dass Daten auf der Seriellen Leitung emfangen wurden, aber der Header nicht gefunden wurde. Variablen Daten werden nicht verÃ¤ndert.
 
 
-    // Achtung, Werte sind positive für inside!!!
+    // Achtung, Werte sind positive fÃ¼r inside!!!
     int magnetudeL;  // nimmt nur beim start 0 an. danach wird immer der letzte wert gelatched, wenn signal verloren
     int magnetudeR;
     int magnetudeB;
@@ -140,10 +140,11 @@ public:
     bool isBackOutside();
 
 
-    unsigned int checksumError;  // 0 wenn Sensordaten von Perimeter richtig empfangen wurden. Ansonsten wir für jedes mal eines falsch empfangen Datenpakets der wert erhöht. Wenn checksum wieder ok wird Wert auf 0 gesetzt.
+    unsigned int checksumError;  // 0 wenn Sensordaten von Perimeter richtig empfangen wurden. Ansonsten wir fÃ¼r jedes mal eines falsch empfangen Datenpakets der wert erhÃ¶ht. Wenn checksum wieder ok wird Wert auf 0 gesetzt.
 
     void setup();
     virtual void run(void);
 };
 
 #endif
+

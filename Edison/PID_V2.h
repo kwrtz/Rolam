@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -26,7 +26,7 @@ by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 
 This Library is licensed under a GPLv3 License
 
-Changed for own needs kai Würtz
+Changed for own needs kai WÃ¼rtz
 **********************************************************************************************/
 
 /*
@@ -156,8 +156,6 @@ public:
 										  //   means the output will increase when error is positive. REVERSE
 										  //   means the opposite.  it's very unlikely that this will be needed
 										  //   once it is set in the constructor.
-	void SetSampleTime(double);              // * sets the frequency, in Milliseconds, with which
-											 //   the PID calculation is performed.  default is 100
 
 	bool Int_Improvement;
 	bool Diff_Improvement;
@@ -199,7 +197,7 @@ class PIDVEL
 {
 
 public:
-
+	bool flagShowPID;
 	//commonly used functions **************************************************************************
 	void  setup(double*, double*, double*,        // * setup.  links the PID to the Input, Output, and
 		double, double, double, int);     //   Setpoint.  Initial tuning parameters are also set here
@@ -254,7 +252,6 @@ private:
 
 	unsigned long lastTimeInMillis;
 
-	double SampleTimeInSec;   // Sampletime stored in Seconds
 	double outMin, outMax;
 	bool inAuto;
 
@@ -270,4 +267,5 @@ private:
 
 
 #endif
+
 

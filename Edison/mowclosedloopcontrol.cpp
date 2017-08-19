@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -35,11 +35,14 @@ void TMowClosedLoopControlThread::setup(uint8_t motorNumber)    // Motor 1 oder 
 	uiMotorDisabled = false;
 	speedCurr = 0;
 	motorMowAccel = 2000;
+	speedLimit = 117; // 0- 127
+	flagShowSpeed = false;
+	errorHandler.setInfoNoLog(F("!03,CLCM SETUP \r\n"));
 }
 
 
 /*********************************************************/
-// Motor FSM ausführen
+// Motor FSM ausfÃ¼hren
 /*********************************************************/
 void TMowClosedLoopControlThread::run()
 {
@@ -51,15 +54,16 @@ void TMowClosedLoopControlThread::run()
 }
 
 /*********************************************************/
-// Motor Zustände Do State
+// Motor ZustÃ¤nde Do State
 /*********************************************************/
 void TMowClosedLoopControlThread::UpdateState(EMowMotorState t)
 {
 
 	// Ramp up until 127
-	speedCurr += (interval * (127 - speedCurr)) / motorMowAccel; // intertval comes from thread
+	speedCurr += ((float)interval * (speedLimit - speedCurr)) / (float)motorMowAccel; // intertval comes from thread
 	if (speedCurr < 30)
 		speedCurr = 30;
+    
 
 	switch (t) {
 	case STMM_FORWARD:
@@ -93,6 +97,10 @@ void TMowClosedLoopControlThread::UpdateState(EMowMotorState t)
 		break;
 	}
 
+	if (flagShowSpeed) {
+		errorHandler.setInfoNoLog(F("!03,CLCM speed: %f \r\n"), speedCurr);
+	}
+
 };
 
 
@@ -101,7 +109,7 @@ void TMowClosedLoopControlThread::forward()
 {
 
 	if (GetState() == STMM_BACKWARD) {
-		errorHandler.setInfo(F("FORWARD not possible. STOP MOTOR FIRST!!!\r"));
+		errorHandler.setInfo(F("!03,CLCM FORWARD not possible. STOP MOTOR FIRST!!!\r"));
 		return;
 	}
 	SetState(STMM_FORWARD);
@@ -112,7 +120,7 @@ void TMowClosedLoopControlThread::backward()
 {
 
 	if (GetState() == STMM_FORWARD) {
-		errorHandler.setInfo(F("BACKWARD not possible. STOP MOTOR FIRST!!!\r"));
+		errorHandler.setInfo(F("!03,CLCM BACKWARD not possible. STOP MOTOR FIRST!!!\r"));
 		return;
 	}
 	SetState(STMM_BACKWARD);
@@ -138,22 +146,6 @@ bool TMowClosedLoopControlThread::isStopped()
 	return (GetState() == STMM_STOP);
 }
 
-// ---------------------------------------------------------
-// Sabnertooth settings only needed one time for configuration of sabertooth
-// ---------------------------------------------------------
-
-void TMowClosedLoopControlThread::setRamp()
-{
-	//The Sabertooth remembers this command between restarts AND in all modes.
-	//  mowMotorDriver.setRamping(1); // 14 ca 4 sek   18 ca. 2sek
-}
-
-void TMowClosedLoopControlThread::setBaudRate()
-{
-	//The Sabertooth remembers this command between restarts AND in all modes.
-	//  mowMotorDriver.setBaudRate(19200);
-}
-
 void TMowClosedLoopControlThread::controlDirect(int speed)
 {
 
@@ -164,3 +156,13 @@ void TMowClosedLoopControlThread::controlDirect(int speed)
 }
 
 
+
+void TMowClosedLoopControlThread::showConfig()
+{
+	errorHandler.setInfoNoLog(F("!03,CLCM Config MowMotorNo: %i\r\n"), motorNo);
+	errorHandler.setInfoNoLog(F("!03,interval: %lu\r\n"), interval);
+	errorHandler.setInfoNoLog(F("!03,motorMowAccel %d\r\n"), motorMowAccel);
+	errorHandler.setInfoNoLog(F("!03,motorDisabled %d\r\n"), motorDisabled);
+	errorHandler.setInfoNoLog(F("!03,uiMotorDisabled %d\r\n"), uiMotorDisabled);
+	errorHandler.setInfoNoLog(F("!03,speedLimit %f\r\n"), speedLimit);
+}

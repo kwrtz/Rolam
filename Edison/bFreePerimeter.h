@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -393,8 +393,8 @@ public:
         }
 
 
-        if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside()) { // wenn beide coils innen dann weitermähen
-            bb.motor.pcL->reset(); // Mower fährt weiter in normalem Mähbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
+        if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside()) { // wenn beide coils innen dann weitermÃ¤hen
+            bb.motor.pcL->reset(); // Mower fÃ¤hrt weiter in normalem MÃ¤hbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
             bb.motor.pcR->reset();
             bb.flagForceRotateDirection = FRD_CW;
             bb.flagForceSmallRotAngle = 1;
@@ -444,8 +444,8 @@ public:
         }
 
 
-        if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside()) { // wenn beide coils innen dann weitermähen
-            bb.motor.pcL->reset(); // Mower fährt weiter in normalem Mähbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
+        if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside()) { // wenn beide coils innen dann weitermÃ¤hen
+            bb.motor.pcL->reset(); // Mower fÃ¤hrt weiter in normalem MÃ¤hbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
             bb.motor.pcR->reset();
             bb.flagForceRotateDirection = FRD_CC;
             bb.flagForceSmallRotAngle = 1;
@@ -526,8 +526,8 @@ public:
         }
 
         if(state == 0) {
-            if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside() && flagRotationFurther == false) { // wenn beide coils innen dann weitermähen
-                bb.motor.pcL->reset(); // Mower fährt weiter in normalem Mähbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
+            if ( bb.perimeterSensoren.isLeftInside() && bb.perimeterSensoren.isRightInside() && flagRotationFurther == false) { // wenn beide coils innen dann weitermÃ¤hen
+                bb.motor.pcL->reset(); // Mower fÃ¤hrt weiter in normalem MÃ¤hbetrieb. Daher Posisioncontrol deaktivieren. Robbi dreht weiter und wird durch cruise wieder gerade gelenkt.
                 bb.motor.pcR->reset();
                 return BH_SUCCESS;
             }
@@ -574,7 +574,7 @@ public:
 
         bb.cruiseSpeed = bb.CRUISE_SPEED_LOW;
 
-        // Wenn Winkel zum Perimeter zu flach, dann beim Rückwärtsfahren kurve fahren,
+        // Wenn Winkel zum Perimeter zu flach, dann beim RÃ¼ckwÃ¤rtsfahren kurve fahren,
         if(bb.perimeterSensoren.isLeftOutside() && bb.perimeterSensoren.isRightOutside()) {
             bb.motor.L->setSpeed(bb.cruiseSpeed);
             bb.motor.R->setSpeed(bb.cruiseSpeed);
@@ -762,3 +762,4 @@ public:
 };
 
 #endif
+

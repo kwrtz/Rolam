@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -71,7 +71,7 @@ public:
 
         counter = 0;
 
-        // Abfangen, wenn bumperereignis wie bei Areax und Perimetertracking nicht weiter bearbeitet wird. Dann fährt robbi immer wieder gegen Hindernis. 
+        // Abfangen, wenn bumperereignis wie bei Areax und Perimetertracking nicht weiter bearbeitet wird. Dann fÃ¤hrt robbi immer wieder gegen Hindernis. 
         if(millis() - lastTimeCalled < 5000){
            counter1++;
         }    
@@ -136,7 +136,7 @@ public:
 
         if(getTimeInNode()> 3000) { // Nach 3 sek sollte bumper frei sein
             if(counter < 3) {
-                if (bb.bumperSensor.isBumperActivated()) {   //wurde bumper bei berfreiung wieder betätigt? Dann wurde Motor auch hard gestoppt von sensor und man muss erneut aktiviert werden. Max. 3x
+                if (bb.bumperSensor.isBumperActivated()) {   //wurde bumper bei berfreiung wieder betÃ¤tigt? Dann wurde Motor auch hard gestoppt von sensor und man muss erneut aktiviert werden. Max. 3x
                     sprintf(errorHandler.msg,"!03,FreeBumper Bumper bei Befreiung erneut betaetigt\r\n");
                     errorHandler.setInfo();
                     buffer = counter; // Save counter value in order it will be reset in onInitialize
@@ -213,7 +213,7 @@ public:
 
     virtual void onTerminate(NodeStatus status, Blackboard& bb) {
         if(status != BH_ABORTED) {
-            // Hat sich perimeterstatus geändert. von innen nach außen oder anderherum?
+            // Hat sich perimeterstatus geÃ¤ndert. von innen nach auÃŸen oder anderherum?
             if (  (bb.perimeterSensoren.isLeftOutside() ||  bb.perimeterSensoren.isRightOutside()) && bb.flagBumperInsidePerActivated ) {
                 bb.flagPerimeterStateChanged = PSC_IO;
                 sprintf(errorHandler.msg,"!03,flagPerimeterStateChanged i->o = true\r\n");
@@ -349,8 +349,8 @@ public:
                     break;
                 case DD_REVERSE_ESC_OBST:
                     // Kann eigentlich nicht auftreten. Wenn DD_REVERSE_ESC_OBST inside aktiviert wurde, wird Eriegnis dass in Schleife ist, vorher von  TConPerOutside abgefangen.
-                    // Kann möglicherweise auftreten, wenn rückwärts ausgewichen nahe am Perimeter und backcoil immernoch innerhalb ist.
-                    // Einfach nur drehen. Dann normal weitermachen. Dazu muss dann nach rotieren driveDirection geändert werden.
+                    // Kann mÃ¶glicherweise auftreten, wenn rÃ¼ckwÃ¤rts ausgewichen nahe am Perimeter und backcoil immernoch innerhalb ist.
+                    // Einfach nur drehen. Dann normal weitermachen. Dazu muss dann nach rotieren driveDirection geÃ¤ndert werden.
                     if ( bb.perimeterSensoren.isLeftOutside()) {
                         bb.flagEscabeObstacleConFlag = FEO_ROTCC;
                     } else if( bb.perimeterSensoren.isRightOutside()) {
@@ -391,9 +391,9 @@ public:
                 if(bb.flagPerimeterStateChanged == PSC_IO) {
 
                     // Nur bei wechsel von inside nach outside richtung anpassen
-                    // Coils waren bei bumperereignis innen und sind nun durch befreieung außerhalb
+                    // Coils waren bei bumperereignis innen und sind nun durch befreieung auÃŸerhalb
 
-                    bb.flagBumperOutsidePerActivated  = true; // OK, ich bin nun ausßerhalb und so tun als ob ereignis außerhalb aufgetreten ist.
+                    bb.flagBumperOutsidePerActivated  = true; // OK, ich bin nun ausÃŸerhalb und so tun als ob ereignis auÃŸerhalb aufgetreten ist.
                     bb.flagBumperInsidePerActivated  = false;
 
                     switch(bb.driveDirection) {
@@ -450,3 +450,4 @@ public:
 
 
 #endif
+

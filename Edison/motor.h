@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -27,7 +27,7 @@ Private-use only! (you need to ask for a commercial-use)
 	#include "WProgram.h"
 #endif
 
-#include "global.h"
+#include "helpers.h"
 #include "mowclosedloopcontrol.h"
 #include "closedloopcontrol.h"
 #include "positioncontrol.h"
@@ -38,8 +38,6 @@ class TMotorInterface
 {
 private:
 
-	enum eDriveCommand { eSTOP, eFORWARD, eBACKWARD, eFORWARDANGLE, eBACKWARDANGLE };
-	eDriveCommand driveCommand;
 
 	// Distance measurement for different functions
 	long encCountsLWorkx;
@@ -61,8 +59,6 @@ private:
 	unsigned long lastRunDistanceMeasurementSpiral;
 
 public:
-
-	float turnWinkelFaktor; // Wenn roboter rotiert ist dies der Faktor, der mit dem soll rotations winkel multipliziert wird. Damit ergibt sich der rad dreh winkel der für den turn zu fahren ist.
 
 	TClosedLoopControlThread *L;
 	TClosedLoopControlThread *R;
@@ -101,7 +97,7 @@ public:
 
 
 	void resetEncoderCounter();
-	void startDistanceMeasurementCoilOut(bool b); // b=true wenn beide cols draußen sind
+	void startDistanceMeasurementCoilOut(bool b); // b=true wenn beide cols drauÃŸen sind
 	void stopDistanceMeasurementLCoilOut();
 	void stopDistanceMeasurementRCoilOut();
 	float getDistanceDiffInCMForCoilOut();
@@ -115,8 +111,6 @@ public:
 	float getDistanceLInCMSpiral();
 
 
-
-	unsigned long lastRunDistanceMeasurement;
 	bool flagShowDistance; // When GotoAreaX is activated, showing the distance can be switched on with this flag.
 
 
@@ -124,11 +118,10 @@ public:
 	void setup(TMowClosedLoopControlThread *_M, TClosedLoopControlThread *_LEFT, TClosedLoopControlThread *_R, TPositionControl *_pcL, TPositionControl *_pcR);
 
 
-	void testEncoder();
-	void testForwardStopBackward();
 	void testPosForwardStopBackward();
 };
 
 
 
 #endif
+

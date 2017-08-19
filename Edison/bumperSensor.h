@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -28,10 +28,10 @@ Private-use only! (you need to ask for a commercial-use)
 #endif
 
 #include "Thread.h"
-#include "global.h"
+#include "helpers.h"
 #include "hardware.h"
 
-#define MPX5010DP_BUF_SIZE 50  // Bei 15ms Intervall sind dies 750ms die zurückgeguckt werden
+#define MPX5010DP_BUF_SIZE 50  // Bei 15ms Intervall sind dies 750ms die zurÃ¼ckgeguckt werden
 
 class TbumperSensor : public Thread
 {
@@ -49,3 +49,4 @@ private:
 
 
 #endif
+

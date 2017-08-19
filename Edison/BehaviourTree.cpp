@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -343,7 +343,7 @@ NodeStatus MemSequence::onUpdate(Blackboard& bb)
 // Will not be aborted like a sequence when returning Failure or Success or by Stack abort. Returns always the result of the child. 
 // A child node can reset the MemRing while returning BH_RESETx or Freez it with  BH_FREEZ_SUCCSESS, BH_FREEZ_FAILURE
 
-// Eigentlich müsste bei abort runningChild weitergezählt werden, damit nächste sequenz beim nächsten Aufruf läuft
+// Eigentlich mÃ¼sste bei abort runningChild weitergezÃ¤hlt werden, damit nÃ¤chste sequenz beim nÃ¤chsten Aufruf lÃ¤uft
  
 MemRing::MemRing(): runningChild(0) {}
 
@@ -527,7 +527,7 @@ NodeStatus Inverter::onUpdate(Blackboard& bb)
 
 // ============================================================================
 // A succeeder will always return success, irrespective of what the child node actually returned.
-// These are useful in cases where you want to process a branch of a tree where a failure is expected or anticipated, but you don’t want to abandon processing of a sequence that branch sits on.
+// These are useful in cases where you want to process a branch of a tree where a failure is expected or anticipated, but you donâ€™t want to abandon processing of a sequence that branch sits on.
 Succeeder::Succeeder(): DecoratorNode() {}
 Succeeder::Succeeder(Node* child) : DecoratorNode(child) {}
 
@@ -650,7 +650,7 @@ void WaitDecorator::setWaitMillis(unsigned long millis)
 
 // ============================================================================
 // The tree must keep a list of open nodes of the last tick, in order to close them if another branch breaks the execution
-// (e.g., when a priority branch returns RUNNING.). After each tick, the tree must close all open nodes that weren’t executed.
+// (e.g., when a priority branch returns RUNNING.). After each tick, the tree must close all open nodes that werenâ€™t executed.
 
 BehaviourTree::BehaviourTree():flagShowLastNode(true) {}
 
@@ -710,8 +710,8 @@ NodeStatus BehaviourTree::tick(Blackboard& bb)
 
     // Es kann vorkommen, das im aktuellen durchlauf eine node von running auf success gegangen ist.
     // Diese sich aber trotzdem noch im last Stack befindet. Hier wird dann trotzdem die abort function aufgerufen
-    // abort() prüft , ob die node noch im running state ist und terminiert diese nur dann
-    // wenn diese tatsächlich noch im running state ist.
+    // abort() prÃ¼ft , ob die node noch im running state ist und terminiert diese nur dann
+    // wenn diese tatsÃ¤chlich noch im running state ist.
 
     /* CLOSE NODES FROM LAST TICK, IF NEEDED */
     int start = -1;  // go through stack and find first node unequal
@@ -737,7 +737,7 @@ NodeStatus BehaviourTree::tick(Blackboard& bb)
     }
 
 
-    // Wenn bei aktuellem Durchlauf kein runningNode zurückgemeldet wurde, in lastRunningNodes aber noch Einträge
+    // Wenn bei aktuellem Durchlauf kein runningNode zurÃ¼ckgemeldet wurde, in lastRunningNodes aber noch EintrÃ¤ge
     // vorhanden sind, diese aborten. Dies kann vorkommen, wenn ein Selector einen vorherigen anderen Zweig aufruft der mit Success beendet wird.
     // oder der letzte Zweig mit success/failure beendet wird.
     if(bb.runningNodes.size == 0 && lastRunningNodes.size > 0) {
@@ -795,5 +795,6 @@ void BehaviourTree::reset(Blackboard& bb)
     bb.runningNodes.Clear();
 
 }
+
 
 

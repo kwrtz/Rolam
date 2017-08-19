@@ -135,3 +135,4 @@ void Sabertooth::setTimeout(int milliseconds) const
 {
   command(14, (byte)((constrain(milliseconds, 0, 12700) + 99) / 100));
 }
+

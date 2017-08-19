@@ -45,7 +45,8 @@ its possible to execute individual functions within the sketch.
 #include <ctype.h>
 #include "cmd.h"
 #include "hardware.h"
-//#include "global.h"
+#include "errorhandler.h"
+//#include "helpers.h"
 
 // command line message buffer and pointer
 static uint8_t msg[MAX_MSG_SIZE];
@@ -218,23 +219,33 @@ at the setup() portion of the sketch.
 /**************************************************************************/
 void cmdAdd(char *name, void(*func)(int argc, char **argv))
 {
+
 	// alloc memory for command struct
 	cmd_tbl = (cmd_t *)malloc(sizeof(cmd_t));
 
+	if (cmd_tbl == NULL) {
+		errorHandler.setError(F("cmdAdd 0 malloc could not allocate memory\r\n"));
+	}
 	// alloc memory for command name
 	char *cmd_name = (char *)malloc(strlen(name) + 1);
 
+	if (cmd_name == NULL) {
+		errorHandler.setError(F("cmdAdd 1 malloc could not allocate memory\r\n"));
+	}
 	// copy command name
 	strcpy(cmd_name, name);
 
 	// terminate the command name
 	cmd_name[strlen(name)] = '\0';
 
+	//debug.serial.println(cmd_name);
+
 	// fill out structure
 	cmd_tbl->cmd = cmd_name;
 	cmd_tbl->func = func;
 	cmd_tbl->next = cmd_tbl_list;
 	cmd_tbl_list = cmd_tbl;
+
 }
 
 /**************************************************************************/
@@ -252,6 +263,7 @@ float cmdStr2Float(char *str)
 {
 	return  atof(str);
 }
+
 
 
 

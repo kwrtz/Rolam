@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -255,7 +255,7 @@ public:
 // ============================================================================
 /**
 * A succeeder will always return success, irrespective of what the child node actually returned.
-* These are useful in cases where you want to process a branch of a tree where a failure is expected or anticipated, but you don’t want to abandon processing of a sequence that branch sits on.
+* These are useful in cases where you want to process a branch of a tree where a failure is expected or anticipated, but you donâ€™t want to abandon processing of a sequence that branch sits on.
 */
 class Succeeder : public DecoratorNode
 {
@@ -330,7 +330,7 @@ public:
 // ============================================================================
 /**
 *  The tree must keep a list of open nodes of the last tick, in order to close them if another branch breaks the execution
-* (e.g., when a priority branch returns RUNNING.). After each tick, the tree must close all open nodes that weren’t executed.
+* (e.g., when a priority branch returns RUNNING.). After each tick, the tree must close all open nodes that werenâ€™t executed.
 */
 
 class BehaviourTree
@@ -350,3 +350,4 @@ public:
 
 
 #endif
+

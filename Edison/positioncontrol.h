@@ -1,6 +1,6 @@
 /*
 Robotic Lawn Mower
-Copyright (c) 2017 by Kai Würtz
+Copyright (c) 2017 by Kai WÃ¼rtz
 
 Private-use only! (you need to ask for a commercial-use)
 
@@ -32,7 +32,7 @@ Private-use only! (you need to ask for a commercial-use)
 
 #include "Thread.h"
 #include "PID_v2.h"
-#include "global.h"
+#include "helpers.h"
 #include "Sabertooth.h"
 #include "closedloopcontrol.h"
 #include "CRotaryEncoder.h"
@@ -42,7 +42,6 @@ Private-use only! (you need to ask for a commercial-use)
 enum EPosState
 {
 	STP_OFF = -1, // optional, -1 is the initial state of the fsm
-	STP_START_ANGLE,
 	STP_START_CM,
 	STP_DRIVETOPOSITION,
 	STP_TARGETREACHED,
@@ -60,42 +59,43 @@ public:
 
 	void setup(TClosedLoopControlThread *_motor, CRotaryEncoder *enc);
 
-	void rotateAngle(float _angle, long _speed);
-	void rotateCM(float _cm, long _speed);
+	void rotateAngle(float _angle, long _speedPercentage);
+	void rotateCM(float _cm, long _speedPercentage);
 	//void stopPositioning();
 	void reset();
-	bool isPositionReached(); // rotateForward oder rotateForward fertig mit ausführugn?
+	bool isPositionReached(); // rotateForward oder rotateForward fertig mit ausfÃ¼hrugn?
 
 							  // Wegberechnungsroutinen
 	long getCountsForCM(float x);
 	long getCountsForDegree(float x);
-	long getDegreeForCounts(float x);
+	float getDegreeForCounts(float x);
 	float getCMForCounts(float x);
 
+	bool flagShowResults;
 
-	void SetPosKp(double Kp);
+	float posKp;
+	float stopCmBeforeTarget;
+	float addCmToTargetPosition;
+
+	void showConfig();
 
 private:
 
-	long posKp;
-	long startPositionCounter;
+
+
+	float startPositionCM;
+	float sollPositionCM;
+	float inputPositionCM;
+	long  sollSpeedPercentage; // Soll speed wird von setSpeed gesetzt 
 
 	virtual void UpdateState(EPosState t);
-
-	void setSpeed(long  speed);  // -100% bis +100% Motorgeschwindigkeit festlegen
-
-	float sollAngle;
-	float sollCM;
 
 	TClosedLoopControlThread *motor;
 	CRotaryEncoder *myEncoder;
 
-	long  sollSpeed; // Soll speed wird von setSpeed gesetzt 
-
-					 // rotateForward(angle), rotateBackward(angle)
-	long sollDistance;
 
 
 };
 
 #endif
+
