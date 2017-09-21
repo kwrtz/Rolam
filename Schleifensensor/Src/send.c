@@ -153,8 +153,8 @@ void sendToMaster(CAL_ChannelTypeDef *confL, CAL_ChannelTypeDef *confR, CAL_Chan
 	 */
 	if (flag_ShowValuesSendToMaster) {
 		char msg[200];
-		sprintf(msg, "ML: %i MR: %i MB: %i QL: %f QR: %f QB: %f PDL: %i PDR: %i PDB: %i\r\n", magnetudeL.sIn16t, magnetudeR.sIn16t, magnetudeB.sIn16t,
-				confL->filterQuality, confR->filterQuality, confB->filterQuality,  confL->peakDistanz, confR->peakDistanz , confB->peakDistanz);
+		sprintf(msg, "ML: %i MR: %i MB: %i QL: %f QR: %f QB: %f RATL: %f RATR: %f RATB: %f\r\n", magnetudeL.sIn16t, magnetudeR.sIn16t, magnetudeB.sIn16t,
+				confL->filterQuality, confR->filterQuality, confB->filterQuality,  confL->ratio, confR->ratio , confB->ratio);
 		HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
 
 	}

@@ -104,8 +104,8 @@ BufferSerial pc(Serial, 1);
 BufferSerial bt(Serial2, 1);
 BufferSerial per(Serial1, 1); //Used serial 2 to Receive. Sabertoothdriver sends on this line.
 
-BufferSerial &debug = pc;
-//BufferSerial &debug = bt;
+//BufferSerial &debug = pc;
+BufferSerial &debug = bt;
 BufferSerial &perRX = per;
 //BufferSerial &sabertoothTX = per;
 

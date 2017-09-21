@@ -104,14 +104,7 @@ void cal_convolve(CAL_ChannelTypeDef *conf) {
 
 	//int32_t zeit = millis();
 
-	int32_t sumMax = 0;  // max correlation sum
-	int16_t posMax = 0;  // position of max correlation sum
-	int32_t sumMin = 0;
-	int16_t posMin = 0;
-	int32_t sumMax1 = 0;
-	int16_t posMax1 = 0;
-	int32_t sumMin1 = 0;
-	int16_t posMin1 = 0;
+
 
 	// Correlationssignal berechnen sowie minimum und maximum suchen
 	// ------------------------------------------------------
@@ -123,92 +116,97 @@ void cal_convolve(CAL_ChannelTypeDef *conf) {
 		for (int16_t j = 0; j < SENDER_ARRAY_SIZE; j++) {
 			sum += sendersignal[j] * conf->empfangssignal[i + j];
 		}  //end inner loop
-
-		conf->correlationsignal[i] = sum;
-
-		if (sum > sumMax) {
-			sumMax = sum;
-			posMax = i;
-		}
-		if (sum < sumMin) {
-			sumMin = sum;
-			posMin = i;
-		}
-
+		conf->correlationsignal[i] = sum;///10; //=> 90000/50 = 1800  1800*1800 = 3.240.000
 	}  //end outer loop
 
-	// Links und rechts vom Maximum das zweite Maximum suchen (bzw.minimum). sollte im bereich 480 liegen
-	// bei +-GUARDCELLS von Maximumposition beginnen, da werte neben maximum größer sein können als zweites maximum
-	// nicht weiter entfernt beginnen, da Störsignal maxima gleich nebenan haben kann
-	int16_t i;
-	if (sumMax > -sumMin) {
-		if (posMax - SIDELOBE_CELLS > 0) {
-			for (i = 0; i < posMax - SIDELOBE_CELLS; i++) {
-				if (conf->correlationsignal[i] > sumMax1) {
-					sumMax1 = conf->correlationsignal[i];
-					posMax1 = i;
-				}
-			}
-		}
-		if (posMax + SIDELOBE_CELLS < CORELLATION_ARRAY_SIZE) {
-			for (i = posMax + SIDELOBE_CELLS; i < CORELLATION_ARRAY_SIZE; i++) {
-				if (conf->correlationsignal[i] > sumMax1) {
-					sumMax1 = conf->correlationsignal[i];
-					posMax1 = i;
-				}
-			}
-		}
-		conf->filterQuality = ((float) sumMax) / ((float) -sumMin);
-		if(sumMax>sumMax1)
-		  conf->magnitude = sumMax;
-		else
-		  conf->magnitude = sumMax1;
 
-		//conf->magnitude = (float)conf->magnitude * 32000.0f / (float)maxCorelSumValue; // normalize to 32000
-		conf->peakDistanz = abs(posMax - posMax1);
-
-	} else {
-		if (posMin - SIDELOBE_CELLS > 0) {
-			for (i = 0; i < posMin - SIDELOBE_CELLS; i++) {
-				if (conf->correlationsignal[i] < sumMin1) {
-					sumMin1 = conf->correlationsignal[i];
-					posMin1 = i;
-				}
-			}
+	// ---- square correlation array ---------
+    double result;
+	for (int i = 0; i < CORELLATION_ARRAY_SIZE; i++) {
+		if (conf->correlationsignal[i] < 0){
+			result = -1*pow((double)conf->correlationsignal[i],2);
+			conf->correlationsignal[i] = result/100000;
+	    }
+		else{
+			result = pow((double)conf->correlationsignal[i],2);
+			conf->correlationsignal[i] =  result/100000;
 		}
-		if (posMin + SIDELOBE_CELLS < CORELLATION_ARRAY_SIZE) {
-			for (i = posMin + SIDELOBE_CELLS; i < CORELLATION_ARRAY_SIZE; i++) {
-				if (conf->correlationsignal[i] < sumMin1) {
-					sumMin1 = conf->correlationsignal[i];
-					posMin1 = i;
-				}
-			}
-		}
-		conf->filterQuality = ((float) -sumMin) / ((float) sumMax);
-
-		if(sumMin<sumMin1)
-		  conf->magnitude = sumMin;
-		else
-		  conf->magnitude = sumMin1;
-
-		//conf->magnitude = (float)conf->magnitude * 32000.0f / (float)maxCorelSumValue; // normalize to 32000
-		conf->peakDistanz = abs(posMin - posMin1);
 	}
 
-	// Nur wenn peak distantz im intervall liegt
-	if (conf->peakDistanz > SENDER_ARRAY_SIZE - 3 && conf->peakDistanz < SENDER_ARRAY_SIZE + 3) {
 
-		// alles ok
-		if (conf->filterQuality > QUALITYTHRESHOLD) { // ist die qualität ok
-			//digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-		} else {
-			//digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
-			conf->magnitude = 0;
+	// ---- find peak ---------
+	conf->peakValue = 0;
+	conf->peakIdx = 0;
+	for (int i = 0; i < CORELLATION_ARRAY_SIZE; i++) {
+		if (abs(conf->correlationsignal[i]) > abs(conf->peakValue)) {
+			conf->peakValue = conf->correlationsignal[i]; //maximal Signalintensität
+			conf->peakIdx = i;
 		}
-	} else {
-		conf->magnitude = 0;
-		conf->filterQuality = 0;
-		//digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
+	}
+
+
+	// --- get correlation sum (without max peak and nearby coils) and peakValue2 value -------
+	//quadratische Mittelwert QMW - mean squared error
+	conf->corrSum = 0;
+	conf->peakValue2 = 0;
+	conf->peakIdx2 = 0;
+	int count = 0;
+	if (conf->peakIdx > CORELLATION_ARRAY_SIZE - SIDELOBE_CELLS) {
+		for (int i = SIDELOBE_CELLS; i < (conf->peakIdx - SIDELOBE_CELLS); i++) {
+			conf->corrSum += pow(conf->correlationsignal[i],2);
+			count++;
+			if (abs(conf->correlationsignal[i]) > abs(conf->peakValue2)) {
+				conf->peakValue2 = conf->correlationsignal[i]; //maximal Signalintensität
+				conf->peakIdx2 = i;
+			}
+		}
+	}
+	else  if (conf->peakIdx < SIDELOBE_CELLS) {
+		for (int i = conf->peakIdx + SIDELOBE_CELLS; i < (CORELLATION_ARRAY_SIZE - SIDELOBE_CELLS); i++) {
+			conf->corrSum += pow(conf->correlationsignal[i],2);
+			count++;
+			if (abs(conf->correlationsignal[i]) > abs(conf->peakValue2)) {
+				conf->peakValue2 = conf->correlationsignal[i]; //maximal Signalintensität
+				conf->peakIdx2 = i;
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < CORELLATION_ARRAY_SIZE; i++) {
+			if (i < (conf->peakIdx - SIDELOBE_CELLS) || i >(conf->peakIdx + SIDELOBE_CELLS)) {
+				conf->corrSum += pow(conf->correlationsignal[i],2);
+				count++;
+				if (abs(conf->correlationsignal[i]) > abs(conf->peakValue2)) {
+					conf->peakValue2 = conf->correlationsignal[i]; //maximal Signalintensität
+					conf->peakIdx2 = i;
+				}
+			}
+		}
+	}
+
+
+	if(count == 0) count = 1;
+
+	conf->MSE = (float)conf->corrSum / ((float)count);
+
+	if (conf->MSE > 0.000001f) {
+		conf->psnr = (pow(((float)(conf->peakValue)),2) / conf->MSE);
+		conf->psnr2 = (pow(((float)(conf->peakValue2)),2) / conf->MSE);
+	}
+	else {
+		conf->psnr = 1;
+		conf->psnr2 = 1;
+	}
+
+	if (conf->psnr2 < 0.000001f) {
+		conf->psnr2 = 0.000001f;
+	}
+	conf->ratio = conf->psnr / conf->psnr2;
+
+
+   if ( conf->ratio > 2.5f && conf->psnr > 25 && (abs(conf->peakValue) > 1000)) {
+	   conf->magnitude = conf->peakValue;
+	   conf->filterQuality = conf->psnr;
 	}
 
 }      //end convolve method
@@ -217,18 +215,17 @@ void cal_convolve(CAL_ChannelTypeDef *conf) {
 void cal_printSignal(CAL_ChannelTypeDef *conf, int peakhigh, bool *flagShowSignal) {
 	int i;
 	char msg[100];
-
+/*
 	// Peak ausgeben, um auf Graphen die Sampleabschnitte zu sehen.
 	sprintf(msg, "%i\r\n", peakhigh);
 	HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
 	// Wieder zurücksetzen so dass graph nicht oben bleibt.
 	sprintf(msg, "%i\r\n", 0);
 	HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
-
+*/
 	for (i = 0; i < CORELLATION_ARRAY_SIZE; i++) {
 		if (*flagShowSignal) {
-			int q = (int) (conf->filterQuality * 10.0f);
-			sprintf(msg, "%i,%li,%i,%i\r\n", conf->empfangssignal[i], conf->correlationsignal[i], conf->peakDistanz, q);
+			sprintf(msg, "%i,%li,%d,%f\r\n", conf->empfangssignal[i], conf->correlationsignal[i],  (int)conf->peakValue, conf->filterQuality);
 			HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg),
 			HAL_MAX_DELAY);
 			HAL_Delay(10);
