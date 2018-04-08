@@ -1,6 +1,8 @@
 !!! THIS PROJECT IS STOPPED !!!
 !!!  USED TO LOOK UP ONLY   !!!
 
+Check out my Raindancer Firmware for Ardumower PCB 1.3
+
 # Rolam
 Robotic Lawn Mower
 
